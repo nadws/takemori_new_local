@@ -241,22 +241,27 @@ $total_total = $total_gojek->total + $total_not_gojek->total + $service_charge +
             </tr> -->
             <tr>
                 <td style="font-weight: bold;">Void</td>
+                <td width="1%"></td>
+                <td style="text-align: center;"></td>
+                <td style="text-align: right;"></td>
             </tr>
+            @foreach($void as $v)
             <tr>
-                <td>Void</td>
+                <td style="white-space: nowrap;">{{$v->kategori}}</td>
                 <td width="1%">:</td>
-                <td style="text-align: center;"><?= $transaksi->qty_void ?></td>
-                <td style="text-align: right;"><?= $transaksi->void ?></td>
+                <td style="text-align: center;" width="50%"><?= $v->void ?></td>
+                <td style="text-align: right;"><?= number_format($v->harga, 0) ?></td>
             </tr>
+            @endforeach
             <tr>
-                <td style="font-weight: bold;">Kategori</td>
+                <td style="font-weight: bold;">Dine In / Takeaway</td>
                 <td width="1%"></td>
                 <td style="text-align: center;"></td>
                 <td style="text-align: right;"></td>
             </tr>
             <?php foreach ($kategori as $k) : ?>
             <tr>
-                <td style="white-space: nowrap;"><?= $k->nm_menu ?></td>
+                <td style="white-space: nowrap;"><?= $k->kategori ?></td>
                 <td width="1%">:</td>
                 <td style="text-align: center;" width="50%"><?= $k->qty ?></td>
                 <td style="text-align: right;"><?= number_format($k->qty * $k->harga, 0) ?></td>
@@ -270,7 +275,7 @@ $total_total = $total_gojek->total + $total_not_gojek->total + $service_charge +
             </tr>
             <?php foreach ($gojek as $k) : ?>
             <tr>
-                <td style="white-space: nowrap;"><?= $k->nm_menu ?></td>
+                <td style="white-space: nowrap;"><?= $k->kategori ?></td>
                 <td width="1%">:</td>
                 <td style="text-align: center;" width="50%"><?= $k->qty ?></td>
                 <td style="text-align: right;"><?= number_format($k->qty * $k->harga, 0) ?></td>

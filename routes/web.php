@@ -221,7 +221,7 @@ Route::get('/deleteTips', [TipsController::class, 'deleteTips'])->name('deleteTi
 
 Route::get('/dp', [DpController::class, 'index'])->name('dp')->middleware('auth');
 Route::post('/addDp', [DpController::class, 'addDp'])->name('addDp')->middleware('auth');
-Route::get('/hapusDp', [DpController::class, 'hapusDp'])->name('hapusDp')->middleware('auth');
+Route::get('/delDp', [DpController::class, 'delDp'])->name('delDp')->middleware('auth');
 // --------------------------------------------------------------------------------------
 
 Route::get('/addKoki', [AddKokiController::class, 'index'])->name('addKoki')->middleware('auth');

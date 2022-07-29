@@ -99,6 +99,11 @@ group by d.id_order) as e on e.id_order = a.id_order
             'jml_telat' => $jml_telat,
             'lokasi' => $loc,
             'jml_ontime' => $jml_ontime,
+            'void' => DB::select("SELECT c.kategori,b.nm_menu,sum(a.void) as void, sum(a.harga) as harga FROM `tb_order` as a 
+            LEFT JOIN view_menu2 as b on a.id_harga = b.id_harga
+            left join tb_kategori as c on b.id_kategori = c.kd_kategori
+            WHERE a.tgl BETWEEN '$tgl1' AND '$tgl2' AND a.void = 1 AND id_lokasi = '$loc'
+            GROUP BY c.kd_kategori"),
         ];
         return view('laporan.summary', $data);
     }

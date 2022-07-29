@@ -99,7 +99,7 @@
                         @foreach ($sub_navbar as $sn)
                         <li><a href="{{ route($sn->rot) }}">{{ $sn->sub_navbar }}</a></li>
                         @endforeach
-                        @if(Auth::user()->id_posisi == 2)
+                        @if(Auth::user()->id_posisi == 2 || Auth::user()->id_posisi == 1)
                         <li><a href="{{route('point_masak')}}">Point Masak</a></li>
                         @endif
                     </ul>

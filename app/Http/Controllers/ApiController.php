@@ -68,6 +68,7 @@ class ApiController extends Controller
 
             ]);
         }
+    
 
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_order', $data1);
 
@@ -103,6 +104,30 @@ class ApiController extends Controller
         }
 
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_jurnal', $data1);
+
+        $dataDp = DB::table('tb_dp')->get();
+        $id_dp = [];
+        $data2 = [];
+        foreach ($dataDp as $t) {
+            $id_dp[] = $t->id_dp;
+            array_push($data2, [
+                'kd_dp' => $t->kd_dp,
+                'nm_customer' =>  $t->nm_customer,
+                'server' =>  $t->server,
+                'jumlah' =>  $t->jumlah,
+                'tgl' =>  $t->tgl,
+                'ket' =>  $t->ket,
+                'metode' =>  $t->metode,
+                'tgl_input' =>  $t->tgl_input,
+                'tgl_digunakan' =>  $t->tgl_digunakan,
+                'status' =>  $t->status,
+                'admin' => $t->admin,
+                'id_lokasi' =>  $t->id_lokasi,
+                'created_at' =>  $t->created_at,
+                'updated_at' =>  $t->updated_at,
+            ]);
+        }
+        $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_dp', $data2);
 
         // return $response;
         Jurnal::whereIn('id_jurnal', $id_jurnal)->update(['import' => 'Y']);
@@ -157,7 +182,8 @@ class ApiController extends Controller
                 'k_mandiri' => $t->k_mandiri,
                 'ongkir' => $t->ongkir,
                 'service' => $t->service,
-                'tax' => $t->tax
+                'tax' => $t->tax,
+                'kembalian' => $t->kembalian,
             ]);
         }
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_transaksi', $data1);
@@ -273,10 +299,10 @@ class ApiController extends Controller
         }
         $response =  Http::post('https://ptagafood.com/api/tb_driver', $data);
 
-        return $response;
+        // return $response;
         Ctt_driver::whereIn('id_driver', $id_driver)->update(['import' => 'Y']);
 
-        // return redirect()->route('sukses')->with('sukses', 'Sukses');
+        return redirect()->route('sukses')->with('sukses', 'Sukses');
     }
     public function tips(Request $request)
     {

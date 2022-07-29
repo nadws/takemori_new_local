@@ -21,9 +21,15 @@
             $total2 += $o->qty * $o->harga;
         ?>
         <tr>
-            <td><?= $i++ ?> </td>
-            <td><?= $o->id_meja ?></td>
-            <td><?= $o->nm_menu ?> </td>
+            <td>
+                <?= $i++ ?>
+            </td>
+            <td style="white-space: nowrap">
+                <?= $o->nm_meja ?>
+            </td>
+            <td>
+                <?= $o->nm_menu ?>
+            </td>
             <td style="white-space: nowrap;">
                 <!-- <a href=""><i class="fas fa-minus"></i></a> -->
                 <input name="qty[]" type="number" max="<?= $o->qty ?>" min="0" detail="<?= $o->id_order ?>"
@@ -35,11 +41,14 @@
                 <input type="hidden" name="id_harga[]" value="<?= $o->id_harga ?>">
                 <input type="hidden" name="id_meja[]" value="<?= $o->id_meja ?>">
             </td>
-            <td style="text-align: center;"><?= number_format($o->harga, 0) ?></td>
-            <td style="text-align: center;" class="total<?= $o->id_order ?>"><?= number_format($o->qty * $o->harga, 0) ?>
+            <td style="text-align: center;">
+                <?= number_format($o->harga, 0) ?>
             </td>
-            <td><input type="hidden" class="tl" id="total_id<?= $o->id_order ?>"
-                    value="<?= $o->qty * $o->harga ?>"></td>
+            <td style="text-align: center;" class="total<?= $o->id_order ?>">
+                <?= number_format($o->qty * $o->harga, 0) ?>
+            </td>
+            <td><input type="hidden" class="tl" id="total_id<?= $o->id_order ?>" value="<?= $o->qty * $o->harga ?>">
+            </td>
         </tr>
         <?php endforeach ?>
     </tbody>
@@ -50,11 +59,13 @@
         <tr>
             <th style=" background-color: #25C584;color:white;font-size: 16px;" colspan="2">Subtotal</th>
             <th style="background-color: #25C584;color:white;font-size: 16px;"></th>
-            <th style="background-color: #25C584;color:white;font-size: 16px;" class="total_qty"> <?= $qty ?></th>
+            <th style="background-color: #25C584;color:white;font-size: 16px;" class="total_qty">
+                <?= $qty ?>
+            </th>
             <th style="background-color: #25C584;color:white;font-size: 16px;text-align: center;"> <input type="hidden"
                     id="hrg" value="<?= $harga ?>"></th>
-            <th style="background-color: #25C584;color:white;font-size: 16px; text-align: center; "
-                class="total_hrg"><?= number_format($total2, 0) ?>
+            <th style="background-color: #25C584;color:white;font-size: 16px; text-align: center; " class="total_hrg">
+                <?= number_format($total2, 0) ?>
             </th>
             <th style="background-color: #25C584;color:white;font-size: 16px;">
                 <input type="hidden" class="ttl_hrg" id="ttl_hrg" value="<?= $total2 ?>">
@@ -111,36 +122,11 @@
         }
         ?>
         @php
-        $now = date('Y-m-d');
-            $diskon = DB::table('tb_discount')
-                ->where([['lokasi', Session::get('id_lokasi')], ['dari', '<=', $now], ['expired', '>=', $now]])
-                ->get();
+        $diskon = DB::table('tb_discount')
+        ->where('lokasi', Session::get('id_lokasi'))
+        ->get();
         @endphp
-        <tr>
-            <td colspan="2">Discount</td>
-            <td></td>
-            <td></td>
-            <td>-</td>
-            <td width="20%">
-                <select name="id_discount" id="data_discount" class="form-control select2bs4">
-                    <option value="0">- Pilih Discount -</option>
-                    @foreach ($diskon as $d)
-                        <option value="{{ $d->id_discount }}">{{ $d->ket }}
-                        </option>
-                    @endforeach
-                </select>
-                <input type="hidden" id="jumlah_discount" name="disc">
-                <input type="hidden" id="jenis">
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <td colspan="5"></td>
-            <td>
-                <input type="text" id="view_discount" name="discount" class="form-control" readonly>
-            </td>
-            <td></td>
-        </tr>
+
         <tr>
 
             <td colspan="2">Voucher</td>
@@ -169,42 +155,6 @@
             </td>
             <td></td>
         </tr>
-        
-        {{-- diskon --}}
-        
-        {{--  --}}
-        <?php if ($tb_dis->service == 'Y') : ?>
-        <tr>
-            <td colspan="3">Service charge</td>
-            <td></td>
-            <td>-</td>
-            <td width="20%" class="servis"><?= number_format($service, 0) ?></td>
-            <td></td>
-        </tr>
-        <?php else : ?>
-        <?php endif ?>
-
-        <?php if ($tb_dis->ongkir == 'Y') :  ?>
-        <tr>
-            <td colspan="2">Ongkir </td>
-            <td></td>
-            <td></td>
-            <td>-</td>
-            <td width="20%" class="ongkir"> <?= number_format($ongkir, 0) ?></td>
-            <td></td>
-        </tr>
-        <?php else : ?>
-        <?php endif ?>
-
-        <tr>
-            <td colspan="2">Tax </td>
-            <td></td>
-            <td></td>
-            <td>-</td>
-            <td width="20%" class="tax"><?= number_format($tax, 0) ?></td>
-            <td></td>
-        </tr>
-
         <tr>
             <td colspan="2">Dp</td>
             <td></td>
@@ -214,16 +164,15 @@
                 <select name="id_dp" id="data_dp" class="form-control select2bs4">
                     <option value="0">- Pilih DP -</option>
                     <?php foreach ($dp as $dp) : ?>
-                    <option value="<?= $dp->id_dp ?>"><?= $dp->kd_dp ?> | <?= $dp->ket ?></option>
+                    <option value="<?= $dp->id_dp ?>">
+                        <?= $dp->kd_dp ?> |
+                        <?= $dp->ket ?>
+                    </option>
                     <?php endforeach; ?>
                 </select>
                 <input type="hidden" name="id_dp" id="id_dp">
                 <input type="hidden" name="round" class="round" value="<?= $round ?>">
-                <input type="hidden" name="round2" class="round2" value="<?= $round ?>">
-                <input type="hidden" name="sDiskon" class="sDiskon" value="<?= $round ?>">
-                <input type="hidden" name="vDiskon" class="vDiskon" value="">
                 <input type="hidden" id="jumlah_dp">
-           
                 <input type="hidden" name="kode_dp" id="kode_dp">
             </td>
             <td></td>
@@ -235,6 +184,72 @@
             </td>
             <td></td>
         </tr>
+        {{-- diskon --}}
+        <tr>
+            <td colspan="2">Discount</td>
+            <td></td>
+            <td></td>
+            <td>-</td>
+            <td width="20%">
+                <select name="id_discount" id="data_discount" class="form-control select2bs4">
+                    <option value="0">- Pilih Discount -</option>
+                    @foreach ($diskon as $d)
+                    <option value="{{ $d->id_discount }}">{{ $d->ket }}
+                    </option>
+                    @endforeach
+                </select>
+                <input type="hidden" id="jumlah_discount">
+                <input type="hidden" id="jenis">
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+            <td>
+                <input type="text" id="view_discount" name="discount" class="form-control" readonly>
+            </td>
+            <td></td>
+        </tr>
+        {{-- --}}
+        <?php if ($tb_dis->service == 'Y') : ?>
+        <tr>
+            <td colspan="3">Service charge</td>
+            <td></td>
+            <td>-</td>
+            <td width="20%" class="servis">
+                <?= number_format($service, 0) ?>
+            </td>
+            <td></td>
+        </tr>
+        <?php else : ?>
+        <?php endif ?>
+
+        <?php if ($tb_dis->ongkir == 'Y') :  ?>
+        <tr>
+            <td colspan="2">Ongkir </td>
+            <td></td>
+            <td></td>
+            <td>-</td>
+            <td width="20%" class="ongkir">
+                <?= number_format($ongkir, 0) ?>
+            </td>
+            <td></td>
+        </tr>
+        <?php else : ?>
+        <?php endif ?>
+
+        <tr>
+            <td colspan="2">Tax </td>
+            <td></td>
+            <td></td>
+            <td>-</td>
+            <td width="20%" class="tax">
+                <?= number_format($tax, 0) ?>
+            </td>
+            <td></td>
+        </tr>
+
+
         <tr>
             <td colspan="2">Gosend</td>
             <td></td>
@@ -250,21 +265,18 @@
             <td width="20%"></td>
             <td width="20%">
                 <input type="number" id="total1" name="total_dibayar" class="form-control" value="<?= $c ?>" readonly>
-                <input type="hidden" id="totalTetap" name="totalTetap" class="form-control" value="<?= $c ?>" readonly>
-                <input type="hidden" id="tvoucher" name="tvoucher" class="form-control" value="<?= $c ?>" readonly>
                 <input type="hidden" id="total2" name="total_orderan" class="form-control" value="<?= $c ?>" readonly>
             </td>
             <td></td>
         </tr>
-        <input type="hidden" id="kembalian1" name="kembalian1" class="form-control" value="0" readonly>
-
 
         <tr>
             <td style="font-weight: bold;" colspan="3">Cash</td>
             <td>:</td>
             <td colspan="2"><input type="number" id="cash" name="cash" value="0" class="form-control pembayaran"></td>
-            <td><button id="btn_bayar" class="btn btn-info btn-sm save_btn" disabled><i
-                        class="fas fa-cash-register"></i> Save</button></td>
+            <td><button type="button" id="btn_bayar" class="btn btn-info btn-sm save_btn btn-confirm" disabled><i
+                        class="fas fa-cash-register"></i>
+                    Save</button></td>
 
         </tr>
         <tr>

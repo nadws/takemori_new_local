@@ -93,21 +93,6 @@
 
             </td>
         </tr>
-        <?php if ($transaksi->discount) : ?>
-            <tr>
-                <td style="text-align: left;" width="6%"></td>
-                <td style="font-size: 20px;">
-                    Discount
-                </td>
-                <td width="22%" style="font-size: 20px;">
-                    <?= number_format($transaksi->discount) ?> %
-                </td>
-
-                <td width="15%" align="right">
-
-                </td>
-            </tr>
-        <?php endif; ?>
         <?php if ($transaksi->voucher) : ?>
             <tr>
                 <td style="text-align: left;" width="6%"></td>
@@ -123,19 +108,17 @@
                 </td>
             </tr>
         <?php endif; ?>
-        @php
-            $totO = $s_total * (100 - $transaksi->discount) / 100 - $transaksi->voucher
-        @endphp
+
         <tr>
             <td style="text-align: left;" width="6%"></td>
             <td style="font-size: 20px;">
                 <span style="font-weight: bold;"> DISC VOUCHER </span>
             </td>
             <td width="22%" style="font-size: 20px;">
-                <?php if ($totO < 0) : ?>
+                <?php if ($s_total - $transaksi->voucher < 0) : ?>
                     <span style="font-weight: bold;">0</span>
                 <?php else : ?>
-                    <span style="font-weight: bold;"><?= number_format($totO) ?></span>
+                    <span style="font-weight: bold;"><?= number_format($s_total - $transaksi->voucher) ?></span>
                 <?php endif ?>
 
             </td>
@@ -203,7 +186,9 @@
             <td style="font-weight: bold; font-size: 20px;" width="22%">
                 <?= number_format($totalan) ?>
             </td>
+
             <td width="15%" align="right">
+
             </td>
         </tr> --}}
         <!-- <tr>
@@ -214,7 +199,9 @@
             <td width="22%" style="font-size: 20px;">
                 0
             </td>
+
             <td width="15%" align="right">
+
             </td>
         </tr> -->
 
@@ -340,11 +327,7 @@
                 Change
             </td>
             <td width="22%">
-                @if ($transaksi->kembalian > 0)
-                <?= number_format($transaksi->kembalian, 0) ?>
-                @else
                 <?= number_format($transaksi->cash + $transaksi->d_bca + $transaksi->k_bca + $transaksi->d_mandiri + $transaksi->k_mandiri - $transaksi->total_bayar, 0) ?>
-                @endif
             </td>
 
             <td width="15%" align="right" style="font-size: 20px;">

@@ -28,7 +28,8 @@ class Point_masak extends Controller
                 $tgl1 = $r->tgl1;
                 $tgl2 = $r->tgl2;
             }
-
+            $lamaMenit = DB::table('tb_menit')->where('id_lokasi',$id_lokasi)->first();
+            
 
 
             $total_not_gojek = DB::selectOne("SELECT SUM(if(tb_transaksi.total_orderan - discount - voucher < 0 ,0,tb_transaksi.total_orderan - discount - voucher)) as total FROM `tb_transaksi`
@@ -45,19 +46,19 @@ class Point_masak extends Controller
                     if(c.status = 'SP', COUNT(c.status), 0) AS qty_sp,
                     if(c.status = 'OFF', COUNT(c.status), 0) AS qty_off
                     FROM tb_absen AS c 
-                    WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi'
+                    WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi' and c.status != 'OFF'
                     GROUP BY c.id_karyawan, c.status
                     ) AS l ON l.id_karyawan = a.id_karyawan
                     
                     LEFT JOIN (
                     SELECT koki, SUM(nilai_koki) as point_gagal FROM view_nilai_masak2 
-                    WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > 30 and id_lokasi = '$id_lokasi'
+                    WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > $lamaMenit->menit and id_lokasi = '$id_lokasi'
                     GROUP BY koki , id_lokasi
                     )e ON a.id_karyawan = e.koki
                     
                     LEFT JOIN (
                         SELECT koki, SUM(nilai_koki) as point_berhasil FROM view_nilai_masak2 
-                        WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= 30 and id_lokasi = '$id_lokasi'
+                        WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= $lamaMenit->menit and id_lokasi = '$id_lokasi'
                         GROUP BY koki , id_lokasi
                     )f ON a.id_karyawan = f.koki
 
@@ -130,7 +131,7 @@ class Point_masak extends Controller
                 $tgl1 = $r->tgl1;
                 $tgl2 = $r->tgl2;
             }
-
+            $lamaMenit = DB::table('tb_menit')->where('id_lokasi',$id_lokasi)->first();
 
 
             $total_not_gojek = DB::selectOne("SELECT SUM(if(tb_transaksi.total_orderan - discount - voucher < 0 ,0,tb_transaksi.total_orderan - discount - voucher)) as total FROM `tb_transaksi`
@@ -147,19 +148,19 @@ class Point_masak extends Controller
                     if(c.status = 'SP', COUNT(c.status), 0) AS qty_sp,
                     if(c.status = 'OFF', COUNT(c.status), 0) AS qty_off
                     FROM tb_absen AS c 
-                    WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi'
+                    WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi' and c.status != 'OFF'
                     GROUP BY c.id_karyawan, c.status
                     ) AS l ON l.id_karyawan = a.id_karyawan
                     
                     LEFT JOIN (
                     SELECT koki, SUM(nilai_koki) as point_gagal FROM view_nilai_masak2 
-                    WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > 30 and id_lokasi = '$id_lokasi'
+                    WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > $lamaMenit->menit and id_lokasi = '$id_lokasi'
                     GROUP BY koki , id_lokasi
                     )e ON a.id_karyawan = e.koki
                     
                     LEFT JOIN (
                         SELECT koki, SUM(nilai_koki) as point_berhasil FROM view_nilai_masak2 
-                        WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= 30 and id_lokasi = '$id_lokasi'
+                        WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= $lamaMenit->menit and id_lokasi = '$id_lokasi'
                         GROUP BY koki , id_lokasi
                     )f ON a.id_karyawan = f.koki
 
@@ -193,7 +194,7 @@ class Point_masak extends Controller
             $tgl1 = $r->tgl1;
             $tgl2 = $r->tgl2;
         }
-
+        $lamaMenit = DB::table('tb_menit')->where('id_lokasi',$id_lokasi)->first();
         $service = DB::selectOne("SELECT SUM(if(tb_transaksi.total_orderan - discount - voucher < 0 ,0,tb_transaksi.total_orderan - discount - voucher)) as total FROM `tb_transaksi`
         LEFT JOIN(SELECT tb_order2.no_order2 as no_order, tb_order2.id_distribusi as id_distribusi FROM tb_order2 GROUP BY tb_order2.no_order2) dt_order ON tb_transaksi.no_order = dt_order.no_order
         WHERE tb_transaksi.id_lokasi = '$id_lokasi' and  dt_order.id_distribusi != '2' AND tb_transaksi.tgl_transaksi >= '$tgl1' AND tb_transaksi.tgl_transaksi <= '$tgl2'");
@@ -217,13 +218,13 @@ class Point_masak extends Controller
         
         LEFT JOIN (
         SELECT koki, SUM(nilai_koki) as point_gagal FROM view_nilai_masak2 
-        WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > 30 and id_lokasi = '$id_lokasi'
+        WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > $lamaMenit->menit and id_lokasi = '$id_lokasi'
         GROUP BY koki , id_lokasi
         )e ON a.id_karyawan = e.koki
         
         LEFT JOIN (
             SELECT koki, SUM(nilai_koki) as point_berhasil FROM view_nilai_masak2 
-            WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= 30 and id_lokasi = '$id_lokasi'
+            WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= $lamaMenit->menit and id_lokasi = '$id_lokasi'
             GROUP BY koki , id_lokasi
         )f ON a.id_karyawan = f.koki
             WHERE a.id_status = '1' and a.tgl_masuk <= '$tgl2' and l.id_lokasi ='$id_lokasi' and a.id_posisi not in ('3','2')
@@ -386,6 +387,7 @@ class Point_masak extends Controller
             $tgl1 = $r->tgl1;
             $tgl2 = $r->tgl2;
         }
+        $lamaMenit = DB::table('tb_menit')->where('id_lokasi',$id_lokasi)->first();
         $service = DB::selectOne("SELECT SUM(if(tb_transaksi.total_orderan - discount - voucher < 0 ,0,tb_transaksi.total_orderan - discount - voucher)) as total FROM `tb_transaksi`
         LEFT JOIN(SELECT tb_order2.no_order2 as no_order, tb_order2.id_distribusi as id_distribusi FROM tb_order2 GROUP BY tb_order2.no_order2) dt_order ON tb_transaksi.no_order = dt_order.no_order
         WHERE tb_transaksi.id_lokasi = '$id_lokasi' and  dt_order.id_distribusi != '2' AND tb_transaksi.tgl_transaksi >= '$tgl1' AND tb_transaksi.tgl_transaksi <= '$tgl2'");
@@ -409,13 +411,13 @@ class Point_masak extends Controller
         
         LEFT JOIN (
         SELECT koki, SUM(nilai_koki) as point_gagal FROM view_nilai_masak2 
-        WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > 30 and id_lokasi = '$id_lokasi'
+        WHERE tgl BETWEEN '$tgl1' AND '$tgl2' AND lama_masak > $lamaMenit->menit and id_lokasi = '$id_lokasi'
         GROUP BY koki , id_lokasi
         )e ON a.id_karyawan = e.koki
         
         LEFT JOIN (
             SELECT koki, SUM(nilai_koki) as point_berhasil FROM view_nilai_masak2 
-            WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= 30 and id_lokasi = '$id_lokasi'
+            WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND lama_masak <= $lamaMenit->menit and id_lokasi = '$id_lokasi'
             GROUP BY koki , id_lokasi
         )f ON a.id_karyawan = f.koki
             WHERE a.id_status = '1' and a.tgl_masuk <= '$tgl2' and l.id_lokasi ='$id_lokasi' and a.id_posisi not in ('3','2')

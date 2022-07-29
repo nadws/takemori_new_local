@@ -135,7 +135,7 @@
                     <h3 class="text-bold text-center">Driver</h3>
                     <center>
                         <br>
-                        <?php if(empty($tb_mencuci->import)): ?>
+                        <?php if(empty($tb_driver->import)): ?>
                         <p class="text-success">Data sudah di export <i class="fas fa-check"></i></p>
                         <?php else: ?>
                         <a href="{{route('tb_driver')}}" class="btn btn-info" id="export6">export</a>

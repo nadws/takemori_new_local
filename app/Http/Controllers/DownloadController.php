@@ -109,10 +109,10 @@ class DownloadController extends Controller
 
     public function discount(Request $request)
     {
-        $discount = Http::get("https://ptagafood.com/api/discount");
+        $discount = Http::get("https://ptagafood.com/api/diskon_tkm");
         $dt_discount = json_decode($discount, TRUE);
         Discount::truncate();
-        foreach ($dt_discount['disount'] as $v) {
+        foreach ($dt_discount['diskon'] as $v) {
             $data = [
                 'id_discount' => $v['id_discount'],
                 'disc' => $v['disc'],
@@ -186,6 +186,19 @@ class DownloadController extends Controller
             Persentase_kom::create($data);
         }
 
+        $tb_menit = Http::get("https://ptagafood.com/api/tb_menit");
+        $dt_menit = json_decode($tb_menit, TRUE);
+        DB::table('tb_menit')->truncate();
+        foreach ($dt_menit['tb_menit'] as $v) {
+            $data = [
+                'id_menit' => $v['id_menit'],
+                'nm_menit' => $v['nm_menit'],
+                'menit' => $v['menit'],
+                'id_lokasi' => $v['id_lokasi'],
+            ];
+            DB::table('tb_menit')->insert($data);
+        }
+
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
     }
 
@@ -251,18 +264,7 @@ class DownloadController extends Controller
             Kategori::create($data);
         }
 
-        $tb_menit = Http::get("https://ptagafood.com/api/tb_menit");
-        $dt_menit = json_decode($tb_menit, TRUE);
-        DB::table('tb_menit')->truncate();
-        foreach ($dt_menit['tb_menit'] as $v) {
-            $data = [
-                'id_menit' => $v['id_menit'],
-                'nm_menit' => $v['nm_menit'],
-                'menit' => $v['menit'],
-                'id_lokasi' => $v['id_lokasi'],
-            ];
-            DB::table('tb_menit')->insert($data);
-        }
+        
 
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
     }

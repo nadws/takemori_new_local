@@ -53,9 +53,9 @@
                                                     @foreach ($dp as $d)
                                                         @php
                                                             if ($d->status == 1) {
-                                                                $status = 'Aktif';
-                                                            } else {
                                                                 $status = 'Terpakai';
+                                                            } else {
+                                                                $status = 'Aktif';
                                                             }
                                                         @endphp
                                                         <tr>
@@ -72,7 +72,7 @@
                                                                 {{ $status }}
                                                             </td>
                                                             <td>
-                                                                <a href="{{route('hapusDp')}}?id={{$d->id_dp}}" class="btn btn-sm btn-danger" onclick="return confirm('Apakah yakin dihapus ?')"><i class="fa fa-trash"></i></a>
+                                                                <a href="{{route('delDp', ['id_dp' => $d->id_dp, 'kd_dp' => $d->kd_dp])}}" class="btn btn-sm btn-danger" onclick="return confirm('Apakah yakin dihapus ?')"><i class="fa fa-trash"></i></a>
                                                             </td>
                                                         </tr>
                                                     @endforeach
