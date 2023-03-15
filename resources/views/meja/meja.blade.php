@@ -298,6 +298,48 @@
         </div>
     </div>
 </form>
+<form id="tambah_pesanan_new_majo">
+    @csrf
+    <div class="modal fade" id="tbh_menu_majo" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+
+            <div class="modal-content">
+                <div class="modal-header " style="background-color: #CDE4D2; color: #745349">
+                    <h5 class="modal-title" id="exampleModalLabel">Tambah Pesanan stk</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div id="orderan_majo">
+
+                    </div>
+
+                    <br>
+                    <br>
+
+                    {{-- <div id="tambah_menu_order_majo"></div>
+
+                    <div align="right" class="mt-2">
+                        <button type="button" id="tambah_form_menu_majo" class="btn btn-sm btn-success">+</button>
+                    </div> --}}
+
+                    <div class="buying-selling-group_majo" id="buying-selling-group" data-toggle="buttons">
+
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn  btn_save_majo"
+                        style="background-color: #B6C7B9; color:#745349">Edit /
+                        Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 @endsection
 
 @section('script')
@@ -665,8 +707,8 @@
                     "'>";
 
                 html_code +=
-                    '<div class="col-lg-4"><select name="id_harga[]" class="form-control id_harga id_harga1' +
-                    count_tambah + ' select2bs4" detail="' + count_tambah +
+                    '<div class="col-lg-4"><select name="id_harga[]" class="select form-control id_harga id_harga1' +
+                    count_tambah + ' " detail="' + count_tambah +
                     '" required><option value="">-Pilih Menu-</option><?php foreach ($menu as $m) : ?><option value="<?= $m->id_harga ?>"><?= $m->nm_menu ?></option><?php endforeach ?></select></div>';
 
                 html_code +=
@@ -687,10 +729,7 @@
                 html_code += "</div>";
 
                 $('#tambah_menu_order').append(html_code);
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-
-                });
+                $('.select').select2()
                 $('.select2bs4').one('select2:open', function(e) {
                     $('input.select2-search__field').prop('placeholder', 'Search...');
                 });
@@ -748,6 +787,152 @@
                 });
 
             });
+
+            $(document).on('click', '.selesai_majo', function(event) {
+                var kode = $(this).attr('kode');
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('meja_selesai_majo') }}",
+                    data: {
+                        kode: kode,
+                        '_token': "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            icon: 'success',
+                            title: 'Makanan telah selesai'
+                        });
+                        load_tugas();
+                    }
+                });
+            });
+            $(document).on('click', '.waitress_majo', function(event) {
+                var kode = $(this).attr('kode');
+                var kry = $(this).attr('kry');
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('pilih_waitress_majo') }}",
+                    data: {
+                        kode: kode,
+                        kry: kry,
+                        '_token': "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            icon: 'success',
+                            title: 'Waitress sudah dipilih'
+                        });
+                        load_tugas();
+                    }
+                });
+            });
+
+            $(document).on('click', '.un_waitress_majo', function(event) {
+                var kode = $(this).attr('kode');
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('un_waitress_majo') }}",
+                    data: {
+                        kode: kode,
+                        '_token': "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            icon: 'success',
+                            title: 'Waitress dibatalkan'
+                        });
+                        load_tugas();
+                    }
+                });
+            });
+            $(document).on('click', '.btn_tbh_majo', function() {
+                var no_order = $(this).attr('no_order');
+                var id_distribusi = $("#id_distribusi").val();
+                // console.log(no_order);
+                $.ajax({
+                    url: "{{ route('tambah_pesanan_majo') }}?no=" + no_order + "&id=" + id_distribusi,
+                    dataType: "html",
+                    success: function(hasil) {
+                        $('#orderan_majo').html(hasil);
+                        $('.row_tambah_menu').remove();
+                        $('.select2bs4').select2({
+                            theme: 'bootstrap4'
+                        });
+                    }
+                });
+                $.ajax({
+                    url: "{{route('get_karyawan_majo')}}",
+                    method: "GET",
+                    success: function(data) {
+                    $('.buying-selling-group_majo').html(data);
+
+                }
+
+            });
+
+
+
+        });
+
+        $(document).on('submit', '#tambah_pesanan_new_majo', function(event) {
+                event.preventDefault();
+                $('.btn_save_majo').hide();
+                var kd_order = $('#kd_order').val()
+                var id_dis = $('#id_dis').val()
+                var meja = $('#meja').val()
+                var qty_majo = $('#qty_majo').val()
+                var hrg_majo = $('#hrg_majo').val()
+
+                var nota = [];
+                $('input[name="kd_karyawan"]:checked').each(function() {
+                    nota.push($(this).attr("value"))
+                });
+
+                var id_harga_majo = $(".id_harga_majo").val()
+
+                $.ajax({
+                url: "{{ route('save_pesanan_majo') }}",
+                method: "GET",
+                data: {
+                    nota: nota,
+                    kd_order: kd_order,
+                    id_dis: id_dis,
+                    id_harga_majo: id_harga_majo,
+                    meja: meja,
+                    qty_majo: qty_majo,
+                    hrg_majo: hrg_majo,
+                },
+                success: function(data) {
+                    // console.log(data);
+                    Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            icon: 'success',
+                            title: 'Pesanan berhasil ditambahkan'
+                        });
+                    load_tugas();
+                    $('.btn_save_majo').show();
+                    $('#tbh_menu_majo').modal('toggle');
+                }
+            });
+            });
+
 
 
 

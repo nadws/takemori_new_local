@@ -155,8 +155,88 @@ class ApiController extends Controller
 
         return redirect()->route('sukses')->with('sukses', 'Sukses');
     }
+
+    public function tb_pembelian()
+    {
+        $tb_pembelian = DB::table('tb_pembelian')->where('import', 'T')->get();
+        $id_pembelian = [];
+        $data3 = [];
+        foreach ($tb_pembelian as $t) {
+            $id_pembelian[] = $t->id_pembelian;
+            array_push($data3, [
+                'no_nota' => $t->no_nota,
+                'no_nota2' => $t->no_nota2,
+                'id_karyawan' => $t->id_karyawan,
+                'id_produk' => $t->id_produk,
+                // 'nm_karyawan' => $t->nm_karyawan,
+                'tanggal' => $t->tanggal,
+                'tgl_input' => $t->tgl_input,
+                'jumlah' => $t->jumlah,
+                'harga' => $t->harga,
+                // 'diskon' => $t->diskon,
+                'jml_komisi' => $t->jml_komisi,
+                'total' => $t->total,
+                // 'catatan' => $t->catatan,
+                'admin' => $t->admin,
+                'no_meja' => $t->no_meja,
+                'lokasi' => $t->lokasi,
+                'void' => $t->void,
+                // 'pengantar' => $t->pengantar,
+                'selesai' => $t->selesai,
+                'bayar' => $t->bayar,
+            ]);
+        }
+        // dd($data2);
+        $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_pembelian_majo', $data3);
+        DB::table('tb_pembelian')->whereIn('id_pembelian', $id_pembelian)->update(['import' => 'Y']);
+
+        return redirect()->route('sukses')->with('sukses', 'Sukses');
+    }
+
     public function tb_transaksi()
     {
+        // tb produk majo
+        $tb_produk_majo = DB::table('tb_produk')->where([['id_lokasi' , 1]])->get();
+        $id_produk_majo = [];
+        $datap = [];
+        foreach ($tb_produk_majo as $t) {
+            $id_produk_majo[] = $t->id_produk;
+            array_push($datap, [
+                'stok' => $t->stok,
+                'id_produk' => $t->id_produk,
+                'id_lokasi' => $t->id_lokasi,
+            ]);
+        }
+        // dd($datap);
+        $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_produk_majo', $datap);
+        
+
+
+        $tb_invoice = DB::table('tb_invoice')->where('import', 'T')->get();
+        $id_invoice = [];
+        $data_invoice = [];
+        foreach ($tb_invoice as $t) {
+            $id_invoice[] = $t->id;
+            array_push($data_invoice, [
+                'no_nota' => $t->no_nota,
+                'total' => $t->total,
+                'bayar' => $t->bayar,
+                'tgl_jam' => $t->tgl_jam,
+                'tgl_input' => $t->tgl_input,
+                'admin' => $t->admin,
+                'no_meja' => $t->no_meja,
+                'lokasi' => $t->lokasi,
+                'id_distribusi' => $t->id_distribusi,
+            ]);
+        }
+        // dd($datap);
+        $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_invoice_new', $data_invoice);
+        DB::table('tb_invoice')->whereIn('id', $id_invoice)->update(['import' => 'Y']);
+     
+        // tb pembelian majoo
+        
+
+        // transaksi resto
         $tb_transaksi = Transaksi::where('import', 'T')->get();
 
         $id_transaksi = [];
@@ -187,8 +267,6 @@ class ApiController extends Controller
             ]);
         }
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_transaksi', $data1);
-
-
         Transaksi::whereIn('id_transaksi', $id_transaksi)->update(['import' => 'Y']);
 
 
@@ -383,5 +461,25 @@ class ApiController extends Controller
             ];
             return view('api_import.index', $data);
         }
+    }
+
+    public function tb_komisi()
+    {
+        $tb_komisi = DB::table('komisi')->where('import', 'T')->get();
+        $data = [];
+        $id_komisi = [];
+        foreach ($tb_komisi as $t) {
+            $id_komisi[] = $t->id;
+            array_push($data, [
+                'id_pembelian' => $t->id_pembelian,
+                'id_kry' => $t->id_kry,
+                'komisi' =>  $t->komisi,
+                'tgl' =>  $t->tgl,
+                'id_lokasi' =>  $t->id_lokasi,
+            ]);
+        }
+        $response =  Http::post('https://ptagafood.com/api/komisi', $data);
+        DB::table('komisi')->whereIn('id', $id_komisi)->update(['import' => 'Y']);
+        return redirect()->route('sukses')->with('sukses', 'Sukses');
     }
 }

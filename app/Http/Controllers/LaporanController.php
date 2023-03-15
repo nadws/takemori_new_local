@@ -44,6 +44,13 @@ class LaporanController extends Controller
         $jml_telat = DB::selectOne("SELECT SUM(qty) AS jml_telat FROM view_koki_masak WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND id_lokasi = $loc AND menit_bagi > 25");
         $jml_ontime = DB::selectOne("SELECT SUM(qty) AS jml_ontime FROM view_koki_masak WHERE tgl >= '$tgl1' AND tgl <= '$tgl2' AND id_lokasi = $loc AND menit_bagi <= 25");
 
+        $majo = DB::selectOne("SELECT SUM(a.bayar) AS bayar_majo
+        FROM tb_invoice AS a
+        WHERE a.tgl_jam BETWEEN '$tgl1' AND '$tgl2' and a.id_distribusi = '1'");
+        $majo_gojek = DB::selectOne("SELECT SUM(a.bayar) AS bayar_majo
+        FROM tb_invoice AS a
+        WHERE a.tgl_jam BETWEEN '$tgl1' AND '$tgl2' and a.id_distribusi = '2'");
+
         $data = [
             'title'    => 'Summary',
             'tgl1' => $tgl1,
@@ -99,6 +106,8 @@ group by d.id_order) as e on e.id_order = a.id_order
             'jml_telat' => $jml_telat,
             'lokasi' => $loc,
             'jml_ontime' => $jml_ontime,
+            'majo' => $majo,
+            'majo_gojek' => $majo_gojek,
             'void' => DB::select("SELECT c.kategori,b.nm_menu,sum(a.void) as void, sum(a.harga) as harga FROM `tb_order` as a 
             LEFT JOIN view_menu2 as b on a.id_harga = b.id_harga
             left join tb_kategori as c on b.id_kategori = c.kd_kategori

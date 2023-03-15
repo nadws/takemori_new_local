@@ -27,7 +27,7 @@
         <br>
         <div class="container-fluid">
             <div class="row mt-4">
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <h3 class="text-bold text-center">Voucher</h3>
                     <center>
                         <br>
@@ -38,7 +38,7 @@
                         </button>
                     </center>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <h3 class="text-bold text-center">Discount</h3>
                     <center>
                         <br>
@@ -49,7 +49,7 @@
                         </button>
                     </center>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <h3 class="text-bold text-center">Menu</h3>
                     <center>
                         <br>
@@ -60,7 +60,18 @@
                         </button>
                     </center>
                 </div>
-                <div class="col-lg-4 mt-4">
+                <div class="col-lg-3">
+                    <h3 class="text-bold text-center">STK</h3>
+                    <center>
+                        <br>
+                        <button type="button" class="btn btn-info" id="stk">import</button>
+                        <button class="btn btn-info save_loadingStk" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </button>
+                    </center>
+                </div>
+                <div class="col-lg-3 mt-4">
                     <h3 class="text-bold text-center">Karyawan</h3>
                     <center>
                         <br>
@@ -71,7 +82,7 @@
                         </button>
                     </center>
                 </div>
-                <div class="col-lg-4 mt-4">
+                <div class="col-lg-3 mt-4">
                     <h3 class="text-bold text-center">User</h3>
                     <center>
                         <br>
@@ -82,7 +93,7 @@
                         </button>
                     </center>
                 </div>
-                <div class="col-lg-4 mt-4">
+                <div class="col-lg-3 mt-4">
                     <h3 class="text-bold text-center">Voucher hapus</h3>
                     <center>
                         <br>
@@ -113,6 +124,7 @@
         $('.save_loading4').hide();
         $('.save_loading5').hide();
         $('.save_loading6').hide();
+        $('.save_loadingStk').hide();
         $(document).on('click', '#export1', function() {
             //   event.preventDefault();
 
@@ -153,6 +165,14 @@
 
             $('#export6').hide();
             $('.save_loading6').show();
+
+        });
+        $(document).on('click', '#stk', function() {
+            //   event.preventDefault();
+            if(confirm('Export dulu STK PEMBELIAN baru import')) {
+                window.location.href = "{{route('tb_majo')}}"
+            }
+            $("#stk").show()
 
         });
     });

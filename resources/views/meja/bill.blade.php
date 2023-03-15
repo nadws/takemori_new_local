@@ -9,11 +9,11 @@
 <div style="font-size: 14px;" class="invoice">
     <center>
         <?php if (Session::get('id_lokasi') == 1) { ?>
-            <img width="100" src="{{ asset('public/assets') }}/pages/login/img/Takemori_new.jpg" alt="">
-            <h3 align="center" style="margin-top: -1px;">TAKEMORI</h3>
+        <img width="100" src="{{ asset('public/assets') }}/pages/login/img/Takemori_new.jpg" alt="">
+        <h3 align="center" style="margin-top: -1px;">TAKEMORI</h3>
         <?php } else { ?>
-            <img width="100" src="{{ asset('public/assets') }}/pages/login/img/soondobu.jpg" alt="">
-            <h3 align="center" style="margin-top: -1px;">SOONDOBU</h3>
+        <img width="100" src="{{ asset('public/assets') }}/pages/login/img/soondobu.jpg" alt="">
+        <h3 align="center" style="margin-top: -1px;">SOONDOBU</h3>
         <?php } ?>
 
     </center>
@@ -29,8 +29,8 @@
                 <?= Auth::user()->nama ?>
             </td>
             <td>
-                <!-- Pax<br><br>
-                {{$pesan_2->orang }} -->
+                {{-- Pax<br><br>
+                {{$pesan_2->orang }} --}}
             </td>
 
             <td>
@@ -74,19 +74,45 @@
                 $bayar += $d->harga * $d->qty;
                 $dis = $d->id_distribusi
             ?>
-                <tr>
-                    <td style="text-align: left;" width="6%">
-                        <?= $d->qty ?>
-                    </td>
-                    <td style="font-size: 20px;">
-                        <?= ucwords(strtolower($d->nm_menu)) ?>
-                    </td>
-                    <td width="23%" style="font-size: 20px;">
-                        <?= number_format($d->harga * $d->qty) ?>
-                    </td>
-                </tr>
-                <?php $ongkir = $d->ongkir ?>
+            @if ($d->nm_menu == '')
+
+            @else
+            <tr>
+                <td style="text-align: left;" width="6%">
+                    <?= $d->qty ?>
+                </td>
+                <td style="font-size: 20px;">
+                    <?= ucwords(strtolower($d->nm_menu)) ?>
+                </td>
+                <td width="23%" style="font-size: 20px;">
+                    <?= number_format($d->harga * $d->qty) ?>
+                </td>
+            </tr>
+            @endif
+
+            <?php $ongkir = $d->ongkir ?>
             <?php endforeach ?>
+
+            @php
+            $t_majo = 0;
+            @endphp
+            @foreach ($majo as $m)
+            @php
+            $t_majo += $m->harga * $m->jumlah;
+            @endphp
+            <tr>
+                <td style="text-align: left;" width="6%">
+                    <?= $m->jumlah ?>
+                </td>
+                <td style="font-size: 20px;">
+                    <?= ucwords(strtolower($m->nm_produk)) ?>
+                </td>
+                <td width="23%" style="font-size: 20px;">
+                    <?= number_format($m->harga * $m->jumlah) ?>
+                </td>
+            </tr>
+            @endforeach
+
         </tbody>
         @php
         $tb_dis = DB::table('tb_distribusi')
@@ -95,30 +121,30 @@
         @endphp
         <?php if ($tb_dis->ongkir == 'Y') : ?>
 
-            <?php if ($bayar < $batas->rupiah) : ?>
-                <?php $ongkir = $ongkir2->rupiah ?>
-            <?php else : ?>
-                <?php $ongkir = 0 ?>
-            <?php endif ?>
+        <?php if ($bayar < $batas->rupiah) : ?>
+        <?php $ongkir = $ongkir2->rupiah ?>
         <?php else : ?>
-            <?php $ongkir = 0 ?>
+        <?php $ongkir = 0 ?>
+        <?php endif ?>
+        <?php else : ?>
+        <?php $ongkir = 0 ?>
         <?php endif ?>
 
         <?php if ($tb_dis->service == 'Y') : ?>
-            <?php $service = $bayar * 0.07;  ?>
+        <?php $service = $bayar * 0.07;  ?>
 
         <?php else : ?>
-            <?php $service = 0  ?>
+        <?php $service = 0  ?>
         <?php endif ?>
 
         <?php if ($tb_dis->tax == 'Y') {
-            $tax = ($bayar + $service + $ongkir) * 0.1;
+            $tax = ($bayar + $service + $ongkir + $t_majo) * 0.1;
         } else {
             $tax = 0;
         } ?>
 
 
-        <?php $total = $bayar + $service + $tax + $ongkir; ?>
+        <?php $total = $bayar + $t_majo + $service + $tax + $ongkir; ?>
 
         <tfoot>
             <tr>
@@ -128,39 +154,39 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td style="font-weight: bold; font-size: 20px; ">SUBTOTAL</td>
                 <td style="font-weight: bold; font-size: 20px;">
-                    {{number_format($bayar)}}
+                    {{number_format($bayar + $t_majo )}}
                 </td>
             </tr>
             <?php if ($tb_dis->ongkir == 'Y') : ?>
-                <tr>
-                    <td style="text-align: left;" width="6%"></td>
-                    <td style="font-weight: bold; font-size: 20px; ">ONGKIR</td>
-                    <td style="font-weight: bold; font-size: 20px; ">
-                        {{number_format($ongkir, 0) }}
-                    </td>
-                </tr>
+            <tr>
+                <td style="text-align: left;" width="6%"></td>
+                <td style="font-weight: bold; font-size: 20px; ">ONGKIR</td>
+                <td style="font-weight: bold; font-size: 20px; ">
+                    {{number_format($ongkir, 0) }}
+                </td>
+            </tr>
             <?php else : ?>
             <?php endif ?>
 
             <?php if ($tb_dis->service == 'Y') : ?>
-                <tr>
-                    <td style="text-align: left;" width="6%"></td>
-                    <td style=" font-size: 20px; ">Service Charge</td>
-                    <td style=" font-size: 20px; ">
-                        {{number_format($service)}}
-                    </td>
-                </tr>
+            <tr>
+                <td style="text-align: left;" width="6%"></td>
+                <td style=" font-size: 20px; ">Service Charge</td>
+                <td style=" font-size: 20px; ">
+                    {{number_format($service)}}
+                </td>
+            </tr>
             <?php else : ?>
             <?php endif ?>
 
             <?php if ($tb_dis->tax == 'Y') : ?>
-                <tr>
-                    <td> </td>
-                    <td style=" font-size: 20px; ">Tax</td>
-                    <td style=" font-size: 20px; ">
-                        {{number_format($tax)}}
-                    </td>
-                </tr>
+            <tr>
+                <td> </td>
+                <td style=" font-size: 20px; ">Tax</td>
+                <td style=" font-size: 20px; ">
+                    {{number_format($tax )}}
+                </td>
+            </tr>
             <?php else : ?>
             <?php endif ?>
 
@@ -181,7 +207,7 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td>TOTAL</td>
                 <td>
-                    {{number_format($c, 0)}}
+                    {{number_format($c , 0)}}
                 </td>
             </tr>
         </tfoot>

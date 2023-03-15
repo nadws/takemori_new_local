@@ -12,6 +12,7 @@ use App\Models\Orderan;
 use App\Models\Transaksi;
 use App\Models\Voucher;
 use App\Models\Akun;
+use App\Models\Pembelian;
 use App\Models\Jurnal;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
@@ -115,6 +116,13 @@ class OrderanController extends Controller
         LEFT JOIN tb_meja AS g ON g.id_meja = a.id_meja
         where   a.no_order = '$no' AND (a.qty - if(f.qty IS NULL ,0,f.qty)) != '0' AND a.selesai = 'selesai' AND a.void = 0 ");
 
+        $majo = DB::select("SELECT a.id_pembelian, a.tanggal, a.no_nota, c.nm_meja, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+        FROM tb_pembelian AS a
+        LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+        left join tb_meja as c on c.id_meja = a.no_meja
+        WHERE a.no_nota= '$no' and a.bayar = 'T'
+        ");
+
         $data = [
             'title' => 'Pembayaran',
             'logout' => $request->session()->get('logout'),
@@ -126,6 +134,8 @@ class OrderanController extends Controller
             'nav' => '2',
             'ongkir_bayar' => DB::select("SELECT SUM(a.rupiah) AS rupiah
             FROM tb_ongkir AS a"),
+            'majo' => $majo
+
         ];
 
         return view('orderan.list_orderan2', $data);
@@ -137,6 +147,9 @@ class OrderanController extends Controller
         $id_order = $request->id_order;
         $id_harga = $request->id_harga;
         $qty = $request->qty;
+        $qty_majo = $request->qty_majo;
+        $id_pembelian = $request->id_pembelian;
+        $total_majo = $request->total_majo;
         $harga = $request->harga;
         $id_meja = $request->id_meja;
         $kode_dp = $request->kode_dp;
@@ -201,6 +214,35 @@ class OrderanController extends Controller
                 Order2::create($data);
             }
         }
+        if(empty($id_pembelian)) {
+            
+        } else {
+            for ($x = 0; $x < sizeof($id_pembelian); $x++) {
+                if ($qty_majo[$x] == '' || $qty_majo[$x] == '0') {
+                } else {
+                    $data = [
+                        'bayar' => 'Y',
+                        'no_nota2' => $hasil
+                    ];
+                    Pembelian::where('id_pembelian', $request->id_pembelian[$x])->update($data);
+                }
+            }
+            if($request->total_dibayar < $total_majo) {
+
+            } else {
+                $data6 = [
+                    'bayar' => $request->total_dibayar < 1 ? 0 : $total_majo,
+                    'no_nota' => $hasil,
+                    'total' => $request->total_dibayar < 1 ? 0 : $total_majo,
+                    'tgl_jam' => date('Y-m-d'),
+                    'tgl_input' => date('Y-m-d H:i:s'),
+                    'admin' => Auth::user()->nama,
+                    'lokasi' => $lokasi,
+                    'id_distribusi' => $id_distribusi
+                ];
+                DB::table('tb_invoice')->insert($data6);
+            }
+        }
 
         $data = [
             'tgl_transaksi' => date('Y-m-d'),
@@ -250,7 +292,7 @@ class OrderanController extends Controller
             Ctt_driver::create($data4);
         }
         $ttl = $request->total_dibayar;
-        $sub = $request->sub;
+        $sub = $request->sub + $request->total_majo;
         $tax = $request->tax;
         $okir = $request->ongkir;
         $service = $request->service;
@@ -614,7 +656,13 @@ class OrderanController extends Controller
         $meja = DB::table('tb_order2')->where('no_order2', $no)->first();
 
         $dis = Order2::where('no_order2', $no)->first();
-
+        $majo = DB::select("SELECT a.id_pembelian, a.tanggal, a.no_nota, c.nm_meja,
+        a.nm_karyawan, b.nm_produk, a.id_karyawan, a.jumlah, a.harga, a.total
+        FROM tb_pembelian AS a
+        LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+        left join tb_meja as c on c.id_meja = a.no_meja
+        WHERE  a.no_nota2 = '$no'
+        ");
 
         $data = [
             'title' => 'Pembayaran',
@@ -624,6 +672,7 @@ class OrderanController extends Controller
             'dis' => $dis->id_distribusi,
             'no' => $no,
             'meja' => $meja->id_meja,
+            'majo' => $majo,
             'dp' => DB::table('tb_dp')->get(),
             'nav' => '2',
             'ongkir_bayar' => DB::select("SELECT SUM(a.rupiah) AS rupiah
@@ -645,6 +694,13 @@ class OrderanController extends Controller
         where   a.no_order2 = '$no'
         GROUP BY a.id_harga
         ");
+        $majo = DB::select("SELECT a.id_pembelian, a.tanggal, a.no_nota, c.nm_meja,
+        a.nm_karyawan, b.nm_produk, a.id_karyawan, a.jumlah, a.harga, a.total
+        FROM tb_pembelian AS a
+        LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+        left join tb_meja as c on c.id_meja = a.no_meja
+        WHERE a.no_nota2= '$no'
+        ");
 
 
         $data = [
@@ -654,6 +710,7 @@ class OrderanController extends Controller
             'no' => $no,
             'kembalian' => $kembalian,
             'dp' => Dp::all(),
+            'majo' => $majo,
             'pesan_2' => DB::select("SELECT a.*, sum(a.qty) as sum_qty ,  b.nm_meja , c.j_mulai, c.j_selesai, c.wait,c.orang
             FROM tb_order2 as a 
             left join tb_meja as b on a.id_meja = b.id_meja 

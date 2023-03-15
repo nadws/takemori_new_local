@@ -1,4 +1,4 @@
-<link href="{{ asset('public/assets') }}/css1/bootstrap.min.css" rel="stylesheet" />
+<link href="{{ asset('public/assets') }}/css/pay.css" rel="stylesheet" id="bootstrap-css">
 
 
 <!------ Include the above in your HEAD tag ---------->
@@ -8,7 +8,6 @@
         background-color: #A2B3BB;
         color: #787878;
     }
-
 </style>
 <div class="container mt-5">
 
@@ -24,6 +23,7 @@
                             <p class="font-weight-bold mb-1">checker #{{ $page->nm_meja }} {{ $dis->nm_distribusi }}
                             </p>
                             <p class="font-weight-bold mb-1">Server : {{ $admin }}</p>
+
                             <p class="font-weight-bold mb-1">Warna : {{ $warna }}</p>
                             <p class="text-muted">TGL :
                                 <?= date('d-F-Y') ?>
@@ -32,18 +32,23 @@
                     </div>
 
                     <hr style="margin-top: -40px;">
-
-
                     @php
                     $ttl = 0;
                     $sub_total = 0;
+                    $sub_majo = 0;
                     foreach (Cart::content() as $c):
+                    if ($c->options->program == 'resto') {
                     $ttl += $c->qty;
                     $sub_total += $c->qty * $c->price;
+                    } else {
+                    $sub_majo += $c->qty * $c->price;
+                    }
                     endforeach;
                     @endphp
                     <form action="{{ route('create') }}" id="form_save_percobaan" method="post">
                         @csrf
+                        <input type="hidden" name="admin" value="{{ $admin }}">
+                        <input type="hidden" name="warna" value="{{ $warna }}">
                         <div class="row p-5" style="margin-top: -40px;">
                             <div class="col-md-12">
                                 <table class="table " style="font-weight: bold;">
@@ -58,29 +63,51 @@
                                     </thead>
                                     <tbody>
                                         @foreach (Cart::content() as $c)
+                                        @if ($c->options->program == 'resto')
                                         <tr>
-                                            <td>
-                                                {{ $c->name }} <br>
-                                                * {{ $c->options->req }}
-                                            </td>
+                                            <td>{{$c->name}}</td>
                                             <td>
                                                 {{ $c->qty }}
                                             </td>
                                             <td>
                                                 Rp. {{ number_format($c->price, 0) }}
+                                                <input type="hidden" name="program[]"
+                                                    value="{{ $c->options->program }}">
                                             </td>
                                         </tr>
                                         <input type="hidden" name="id_meja" value="{{ $page->id_meja }}">
-                                        <input type="hidden" name="warna" value="{{ $warna }}">
-                                        <input type="hidden" name="admin" value="{{ $admin }}">
+
+
                                         <input type="hidden" name="id_harga[]" value="{{ $c->id }} ">
                                         <input type="hidden" name="qty[]" value="{{ $c->qty }}">
                                         <input type="hidden" name="harga[]" value="{{ $c->price }}">
                                         <input type="hidden" name="req[]" value="{{ $c->options->req }}">
+                                        <input type="hidden" name="id[]" value="{{ $c->id }}">
+
+                                        @else
+
+                                        <tr>
+                                            <td>{{$c->name}}</td>
+                                            <td>
+                                                {{ $c->qty }}
+                                            </td>
+                                            <td>
+                                                Rp. {{ number_format($c->price, 0) }}
+                                                <input type="hidden" name="program[]"
+                                                    value="{{ $c->options->program }}">
+                                            </td>
+                                        </tr>
+
+                                        @endif
+
+
                                         @endforeach
                                         <tr>
+                                            <td colspan="3"></td>
+                                        </tr>
+                                        <tr>
                                             <td colspan="2">Subtotal</td>
-                                            <td>Rp. {{ number_format($sub_total, 0) }}</td>
+                                            <td>Rp. {{ number_format($sub_total + $sub_majo, 0) }}</td>
                                         </tr>
                                         <?php if ($dis->service == 'Y') : ?>
                                         @php
@@ -117,7 +144,7 @@
 
                                         <?php if ($dis->tax == 'Y') : ?>
                                         @php
-                                        $tax = ($sub_total + $service + $ongkir) * 0.1;
+                                        $tax = ($sub_total + $service + $ongkir + $sub_majo ) * 0.1;
                                         @endphp
                                         <tr>
                                             <td colspan="2">Tax</td>
@@ -131,7 +158,7 @@
 
 
                                         @php
-                                        $total2 = $sub_total + $service + $tax + $ongkir;
+                                        $total2 = $sub_total + $sub_majo + $service + $tax + $ongkir;
                                         @endphp
 
                                         <tr>
@@ -157,8 +184,6 @@
                                 <center>
                                     <button type="submit" class="btn " id="save_btn"
                                         style="background-color: #363D4B;color:white">Submit</button>
-                                    {{-- <button type="button" class="btn " id="tes"
-                                        style="background-color: #363D4B;color:white">tes</button> --}}
                                     <a href="order" class="btn btn-danger"> Cancel</a>
                                 </center>
                             </div>
@@ -174,8 +199,7 @@
 </div>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"
-integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="{{ asset('public/assets') }}/plugins/jquery/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
         $(document).on('submit', '#form_save_percobaan', function(event) {

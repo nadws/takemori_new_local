@@ -1,6 +1,6 @@
 <!-- Main Footer -->
 <footer class="main-footer">
-    <strong>Copyright &copy; 2022 <a href="https://putrirembulan.com" class="text-white">www.ptagafood.com</a>.</strong>
+    <strong>Copyright &copy; 2022 <a href="#" class="text-white">www.ptagafood.com</a>.</strong>
     All rights reserved.
 </footer>
 </div>
@@ -137,20 +137,7 @@
 
     });
 </script>
-<script type="text/javascript" src="{{ asset('public/assets') }}/dropify/dist/js/dropify.min.js"></script>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('.dropify').dropify({
-            messages: {
-                default: 'Drag',
-                replace: 'Ganti',
-                remove: 'Hapus',
-                error: 'error'
-            }
-        });
-    });
-</script>
 @yield('script')
 </body>
 

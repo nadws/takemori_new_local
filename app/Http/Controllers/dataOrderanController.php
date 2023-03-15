@@ -9,6 +9,7 @@ use App\Models\Koki;
 use App\Models\Order;
 use App\Models\Order2;
 use App\Models\Orderan;
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -145,5 +146,109 @@ class dataOrderanController extends Controller
         Order::where('id_order', $id_order)->update($data);
 
         return redirect()->route('dataOrderan')->with('error', 'Data berhasil diedit');
+    }
+
+    public function dataOrderan_majo(Request $request)
+    {
+        date_default_timezone_set('Asia/Makassar');
+        $id_user = Auth::user()->id;
+        $id_menu = DB::table('tb_permission')->select('id_menu')->where('id_user', $id_user)
+            ->where('id_menu', 29)->first();
+        if (empty($id_menu)) {
+            return back();
+        } else {
+            $loc = $request->session()->get('id_lokasi');
+            $tl = $request->tgl;
+            $tl2 = $request->tgl2;
+            if (empty($tl)) {
+                $tgl = date('Y-m-d');
+                $tgl2 = date('Y-m-d');
+            } else {
+                $tgl = $tl;
+                $tgl2 = $tl2;
+            }
+            if ($loc == 1) {
+                $lokasi = 'TAKEMORI';
+            } else {
+                $lokasi = 'SOONDOBU';
+            }
+            $data = [
+                'title' => 'Data Orderan Majo',
+                'logout' => $request->session()->get('logout'),
+                'tb_order' => DB::select("SELECT a.*, b.nm_meja,c.nm_produk
+                FROM tb_pembelian AS a
+                LEFT JOIN tb_meja AS b ON b.id_meja = a.no_meja
+                LEFT JOIN tb_produk AS c ON c.id_produk = a.id_produk
+                WHERE a.lokasi = '$loc' AND a.tanggal BETWEEN '$tgl' AND '$tgl2'"),
+
+                'nav' => '5'
+            ];
+
+            return view('dataOrderan.dataOrderan_majo', $data);
+        }
+    }
+
+    public function hapus_majo(Request $request)
+    {
+        $id_pembelian = $request->id_pembelian;
+        $id_produk = $request->id_produk;
+        $qty = $request->qty;
+
+        $stk = DB::table('tb_produk')->where('id_produk', $id_produk)->first();
+
+        $data = [
+            'stok' => $stk->stok + $qty
+        ];
+        DB::table('tb_produk')->where('id_produk', $id_produk)->update($data);
+
+        Pembelian::where('id_pembelian', $id_pembelian)->delete();
+
+
+        return redirect()->route('dataOrderan_majo')->with('error', 'Data berhasil dihapus');
+    }
+
+    public function laporan_penjualan_majo(Request $request)
+    {
+        date_default_timezone_set('Asia/Makassar');
+        $id_user = Auth::user()->id;
+        $id_menu = DB::table('tb_permission')->select('id_menu')->where('id_user', $id_user)
+            ->where('id_menu', 29)->first();
+        if (empty($id_menu)) {
+            return back();
+        } else {
+            $loc = $request->session()->get('id_lokasi');
+            $tl = $request->tgl;
+            $tl2 = $request->tgl2;
+            if (empty($tl)) {
+                $tgl = date('Y-m-d');
+                $tgl2 = date('Y-m-d');
+            } else {
+                $tgl = $tl;
+                $tgl2 = $tl2;
+            }
+            if ($loc == 1) {
+                $lokasi = 'Takemori';
+            } else {
+                $lokasi = 'Soondobu';
+            }
+            $data = [
+                'title' => 'Laporan setoran stk',
+                'logout' => $request->session()->get('logout'),
+                'tb_order' => DB::select("SELECT e.nm_kategori, c.nm_produk, c.harga, SUM(a.jumlah) AS qty, a.tgl_input, d.satuan
+                FROM tb_pembelian AS a
+                LEFT JOIN tb_produk AS c ON c.id_produk = a.id_produk
+                LEFT JOIN tb_satuan_majo AS d ON d.id_satuan = c.id_satuan
+                LEFT JOIN tb_kategori_majo AS e ON e.id_kategori = c.id_kategori
+                WHERE a.lokasi = '$loc' AND a.tanggal BETWEEN '$tgl' AND '$tgl2'
+                GROUP BY a.id_produk"),
+
+                'nav' => '5',
+                'tgl1' => $tgl,
+                'tgl2' => $tgl2,
+                'lokasi' => $lokasi
+            ];
+
+            return view('dataOrderan.laporan_majo', $data);
+        }
     }
 }

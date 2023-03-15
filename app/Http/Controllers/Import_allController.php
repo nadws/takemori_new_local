@@ -41,6 +41,8 @@ class Import_allController extends Controller
                 'tb_denda' => Denda::where('import', 'T')->where('tgl', '<=', $date)->first(),
                 'tb_kasbon' => Kasbon::where('import', 'T')->where('tgl', '<=', $date)->first(),
                 'tb_jurnal' => Jurnal::where('import', 'T')->where('tgl', '<=', $date)->first(),
+                'tb_pembelian' => DB::table('tb_pembelian')->where('import', 'T')->where('tanggal', '<=', $date)->first(),
+                'komisi' => DB::table('komisi')->where('import', 'T')->where('tgl', '<=', $date)->first()
             ];
             return view('import_all.index', $data);
         }

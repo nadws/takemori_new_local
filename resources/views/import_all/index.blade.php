@@ -117,6 +117,21 @@
                     </center>
                 </div>
                 <div class="col-lg-4 mt-4">
+                    <h3 class="text-bold text-center">STK Pembelian</h3>
+                    <center>
+                        <br>
+                        <?php if(empty($tb_pembelian->import)): ?>
+                        <p class="text-success">Data sudah di export <i class="fas fa-check"></i></p>
+                        <?php else: ?>
+                        <a href="{{route('tb_pembelian')}}" class="btn btn-info" id="export11">export</a>
+                        <button class="btn btn-info save_loading11" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </button>
+                        <?php endif ?>
+                    </center>
+                </div>
+                <div class="col-lg-4 mt-4">
                     <h3 class="text-bold text-center">Kerja lain-lain</h3>
                     <center>
                         <br>
@@ -206,6 +221,21 @@
                         <?php endif ?>
                     </center>
                 </div>
+                <div class="col-lg-4 mt-4 mb-4">
+                    <h3 class="text-bold text-center">Komisi</h3>
+                    <center>
+                        <br>
+                        <?php if(empty($komisi->import)): ?>
+                        <p class="text-success">Data sudah di export <i class="fas fa-check"></i></p>
+                        <?php else: ?>
+                        <a href="{{route('tb_komisi')}}" class="btn btn-info" id="export12">export</a>
+                        <button class="btn btn-info save_loading12" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </button>
+                        <?php endif ?>
+                    </center>
+                </div>
             </div>
         </div>
     </div>
@@ -229,6 +259,8 @@
         $('.save_loading8').hide();
         $('.save_loading9').hide();
         $('.save_loading10').hide();
+        $('.save_loading11').hide();
+        $('.save_loading12').hide();
         $(document).on('click', '#export1', function() {
             //   event.preventDefault();
 
@@ -297,6 +329,20 @@
 
             $('#export10').hide();
             $('.save_loading10').show();
+
+        });
+        $(document).on('click', '#export11', function() {
+            //   event.preventDefault();
+
+            $('#export11').hide();
+            $('.save_loading11').show();
+
+        });
+        $(document).on('click', '#export12', function() {
+            //   event.preventDefault();
+
+            $('#export12').hide();
+            $('.save_loading12').show();
 
         });
 });

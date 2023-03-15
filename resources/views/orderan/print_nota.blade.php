@@ -48,11 +48,16 @@
         $qty = 0;
         $harga = 0;
         foreach ($order  as $d) :
+
+       
             $s_total += $d->harga * $d->qty_produk;
             $qty = $d->qty_produk;
             $harga += $d->harga;
             $dis = $d->id_distribusi;
         ?>
+        @if ($d->nm_menu == '')
+
+        @else
             <tr>
                 <td style="text-align: left;" width="6%">
                     <?= $d->qty_produk ?>
@@ -68,7 +73,31 @@
                     <?= $d->selisih . ' / ' . $d->selisih2 ?>
                 </td>
             </tr>
+            @endif
         <?php endforeach ?>
+
+        <?php
+        $s_total_majo = 0;
+        foreach ($majo as $m):
+        $s_total_majo += $m->harga * $m->jumlah;
+        ?>
+        <tr>
+            <td style="text-align: left;" width="6%">
+                <?= $m->jumlah ?>
+            </td>
+            <td style="font-size: 20px;">
+                <?= ucwords(strtolower($m->nm_produk)) ?>
+            </td>
+            <td width="23%" style="font-size: 20px;">
+                <?= number_format($m->harga * $m->jumlah) ?>
+            </td>
+
+            <td width="15%" align="right" style="white-space: nowrap;">
+
+            </td>
+        </tr>
+        <?php endforeach ?>
+
         <?php $tb_dis = DB::table('tb_distribusi')
             ->where('id_distribusi', $dis)
             ->first(); ?>
@@ -86,7 +115,7 @@
                 <span style="font-weight: bold;"> SUBTOTAL </span>
             </td>
             <td style="font-weight: bold; font-size: 20px; " width="8%">
-                <?= number_format($s_total) ?>
+                <?= number_format($s_total + $s_total_majo) ?>
             </td>
 
             <td width="15%" align="right">
@@ -124,7 +153,7 @@
             </tr>
         <?php endif; ?>
         @php
-            $totO = $s_total * (100 - $transaksi->discount) / 100 - $transaksi->voucher
+            $totO = ($s_total + $s_total_majo) * (100 - $transaksi->discount) / 100 - $transaksi->voucher
         @endphp
         <tr>
             <td style="text-align: left;" width="6%"></td>

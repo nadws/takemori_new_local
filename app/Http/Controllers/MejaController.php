@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Orderan;
 use App\Models\Transaksi;
+use App\Models\Pembelian;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -225,7 +226,7 @@ class MejaController extends Controller
                         'id_distribusi' => $id_dis,
                         'id_lokasi' => $request->session()->get('id_lokasi'),
                         'tgl' => date('Y-m-d'),
-                        'admin' => Auth::user()->nama,
+                        'admin' => empty($admin) ? Auth::user()->nama : $admin,
                         'j_mulai' => date('Y-m-d H:i:s'),
                         'selesai' => 'dimasak',
                         'aktif' => '1',
@@ -295,6 +296,11 @@ class MejaController extends Controller
             GROUP BY a.id_harga
             "),
         );
+        $majo = DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+        FROM tb_pembelian AS a
+        LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+        WHERE a.no_nota= '$id'
+        ");
         $data = [
             'order' => $order,
             'no_order' => $id,
@@ -309,6 +315,7 @@ class MejaController extends Controller
                 ->first(),
             'batas' => DB::table('tb_batas_ongkir')
                 ->first(),
+            'majo' => $majo
         ];
         return view('meja.bill', $data);
     }
@@ -392,21 +399,10 @@ class MejaController extends Controller
         );
 
         $data = [
-            'order' => $order,
             'order2' => $order2,
             'order3' => $order3,
             'order4' => $order4,
             'no_order' => $id,
-            'pesan_2'    => DB::table('tb_order as a')
-                ->select(DB::raw('a.*, sum(a.qty) as sum_qty ,  b.nm_meja'))
-                ->leftJoin('tb_meja as b', 'b.id_meja', '=', 'a.id_meja')
-                ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
-                ->where('a.no_order', $id)
-                ->where('c.tipe', 'food')
-                ->whereNotIn('c.id_kategori' ,['14','15','17','18'])
-                ->where('a.no_checker', 'T')
-                ->groupBy('a.no_order')
-                ->first(),
             'pesan_3'    => DB::table('tb_order as a')
                 ->select(DB::raw('a.*, sum(a.qty) as sum_qty ,  b.nm_meja'))
                 ->leftJoin('tb_meja as b', 'b.id_meja', '=', 'a.id_meja')
@@ -436,13 +432,31 @@ class MejaController extends Controller
                 ->where('a.no_checker', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
+                'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+                FROM tb_pembelian AS a
+                LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+                WHERE a.no_nota= '$id'
+                "),
+            'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+                FROM tb_pembelian AS a
+                LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+                WHERE a.no_nota= '$id'
+                "),
+                
+            'majo_ttl' => DB::selectOne("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  sum(a.jumlah) as sum_qty, a.harga, a.total
+                        FROM tb_pembelian AS a
+                        LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
+                        WHERE a.no_nota= '$id'
+                        group by a.no_nota
+                        "),
+            'meja' => DB::selectOne("SELECT a.warna, b.nm_meja
+                        FROM tb_order AS a
+                        LEFT JOIN tb_meja AS b ON b.id_meja = a.id_meja
+                        WHERE a.no_order = '$id'
+                        GROUP BY a.no_order ")
         ];
 
-        $data1 = [
-            'no_checker' => 'Y',
-            'print' => 'Y'
-        ];
-        Orderan::where('no_order', $id)->update($data1);
+        
         return view('meja.checker', $data);
     }
     public function checker_tamu(Request $request)
@@ -700,4 +714,184 @@ class MejaController extends Controller
 
         return view('meja.copy_checker', $data);
     }
+
+    public function meja_selesai_majo(Request $request)
+    {
+        $id_pembelian = $request->kode;
+        $data = [
+            'selesai' => 'selesai',
+        ];
+        Pembelian::where('id_pembelian', $id_pembelian)->update($data);
+    }
+    public function pilih_waitress_majo(Request $request)
+    {
+        date_default_timezone_set('Asia/Makassar');
+        $id_pembelian = $request->kode;
+        $waitress = $request->kry;
+        $id = $request->id;
+
+        $data = [
+            'pengantar' => $waitress,
+        ];
+        Pembelian::where('id_pembelian', $id_pembelian)->update($data);
+    }
+    public function un_waitress_majo(Request $request)
+    {
+        $id_pembelian = $request->kode;
+        $data = [
+            'pengantar' => '',
+        ];
+        Pembelian::where('id_pembelian', $id_pembelian)->update($data);
+    }
+    public function get_harga_majo(Request $request)
+    {
+        $id_harga = $request->id_harga;
+        $dp = DB::table('tb_produk')
+            ->where('id_produk', $id_harga)
+            ->first();
+
+        echo "$dp->harga";
+    }
+
+    public function tambah_pesanan_majo(Request $request)
+    {
+        $lokasi = $request->session()->get('id_lokasi');
+        $no_order = $request->no;
+        $id_dis = $request->id;
+
+        if ($id_dis == '1' || $id_dis == '3') {
+            $produk =  DB::select("SELECT a.id_produk, a.komisi,  a.nm_produk, a.sku, a.harga, b.satuan , c.nm_kategori, a.id_lokasi, d.debit, d.kredit,e.kredit_penjualan
+            FROM tb_produk AS a
+            LEFT JOIN tb_satuan_majo AS b ON b.id_satuan = a.id_satuan
+            LEFT JOIN tb_kategori_majo AS c ON c.id_kategori = a.id_kategori
+            
+            LEFT JOIN (
+            SELECT d.id_produk, SUM(d.debit) AS debit, SUM(d.kredit) AS kredit
+            FROM tb_stok_produk AS d 
+            GROUP BY d.id_produk
+            ) AS d ON d.id_produk = a.id_produk
+
+            LEFT JOIN (
+            SELECT e.id_produk , SUM(e.jumlah) AS kredit_penjualan
+            FROM tb_pembelian AS e 
+            GROUP BY e.id_produk
+            )AS e ON e.id_produk = a.id_produk
+            
+            WHERE a.id_lokasi = '$lokasi' and a.id_kategori != '11'  ");
+        } else {
+            $produk =  DB::select("SELECT a.id_produk, a.komisi,  a.nm_produk, a.sku, a.harga, b.satuan , c.nm_kategori, a.id_lokasi, d.debit, d.kredit,e.kredit_penjualan
+            FROM tb_produk AS a
+            LEFT JOIN tb_satuan_majo AS b ON b.id_satuan = a.id_satuan
+            LEFT JOIN tb_kategori_majo AS c ON c.id_kategori = a.id_kategori
+            
+            LEFT JOIN (
+            SELECT d.id_produk, SUM(d.debit) AS debit, SUM(d.kredit) AS kredit
+            FROM tb_stok_produk AS d 
+            GROUP BY d.id_produk
+            ) AS d ON d.id_produk = a.id_produk
+
+            LEFT JOIN (
+            SELECT e.id_produk , SUM(e.jumlah) AS kredit_penjualan
+            FROM tb_pembelian AS e 
+            GROUP BY e.id_produk
+            )AS e ON e.id_produk = a.id_produk
+            
+            WHERE a.id_lokasi = '$lokasi' and a.id_kategori = '11'  ");
+        }
+        $order = DB::table('tb_order')
+            ->where('no_order', $no_order)
+            ->where('id_lokasi', $lokasi)
+            ->groupBy('no_order')
+            ->first();
+
+        $data = [
+            'order' => $order,
+            'produk' => $produk
+        ];
+
+        return view('meja.tbh_menu_majo', $data)->render();
+    }
+
+
+    public function save_pesanan_majo(Request $r)
+    {
+        $kd_order = $r->kd_order;
+        $id_dis = $r->id_dis;
+        $id_harga_majo = $r->id_harga_majo;
+        $nota = $r->nota;
+        $meja = $r->meja;
+        $qty_majo = $r->qty_majo;
+        $hrg_majo = $r->hrg_majo;
+        $admin =  Auth::user()->nama;
+        $lokasi = $r->session()->get('id_lokasi');
+
+
+        $d_produk = DB::table('tb_produk')->where('id_produk', $id_harga_majo)->where('id_lokasi', $lokasi)->first();
+        $data = [
+            'id_karyawan'  => $nota[0],
+            'id_produk' => $id_harga_majo,
+            'no_nota' => $kd_order,
+            'jumlah' => $qty_majo,
+            'harga' => $hrg_majo,
+            'total' => $qty_majo * $hrg_majo,
+            'tanggal' => date('Y-m-d'),
+            'tgl_input' => date('Y-m-d H:i:s'),
+            'admin' => $admin,
+            'lokasi' => $lokasi,
+            'no_meja' => $meja,
+            'jml_komisi' => $d_produk->komisi
+        ];
+        $dataInsert = Pembelian::create($data);
+        $id_pembelian = $dataInsert->id;
+
+
+        $data2 = [
+            'no_order' => $kd_order,
+            'qty' => '1',
+            'id_meja' => $meja,
+            'id_distribusi' => $id_dis,
+            'selesai' => 'selesai',
+            'id_lokasi' => $lokasi,
+            'tgl' => date('Y-m-d'),
+            'j_mulai' => date('Y-m-d H:i:s'),
+            'aktif' => '1',
+        ];
+        Orderan::create($data2);
+
+        // $data_invoice = [
+        //     'no_nota' => $kd_order,
+        //     'total' => $qty_majo * $hrg_majo,
+        //     'tgl_jam' => date('Y-m-d'),
+        //     'tgl_input' => date('Y-m-d H:i:s'),
+        //     'admin' => $admin,
+        //     'lokasi' => $lokasi,
+        //     'no_meja' => $meja
+        // ];
+        // DB::table('tb_invoice')->insert($data_invoice);
+
+        $stok_baru = [
+            'stok' => $d_produk->stok -  $qty_majo
+        ];
+
+        DB::table('tb_produk')->where('id_produk', $id_harga_majo)->update($stok_baru);
+
+        if ($hrg_majo > 0) {
+            $subharga = $qty_majo * $hrg_majo;
+        } else {
+            $subharga = 0;
+        }
+        $komisi1 = $subharga * $d_produk->komisi / 100;
+        $komisi = $komisi1 / count($nota);
+        foreach ($nota as $id_karyawan) {
+            $data_komisi = [
+                'id_pembelian' => $id_pembelian,
+                'id_kry'  => $id_karyawan,
+                'komisi' => $komisi,
+                'tgl' => date('Y-m-d'),
+                'id_lokasi' => '1'
+            ];
+            DB::table('komisi')->insert($data_komisi);
+        }
+    }
+
 }

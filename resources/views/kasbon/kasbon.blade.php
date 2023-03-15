@@ -143,7 +143,7 @@
                         <div class="row">
                             <div class="col-lg-5">
                                 <label for="">Nama</label>
-                                <select name="nama[]" id="" class="form-control">
+                                <select name="nama[]" id="" class="form-control select">
                                     <option value="">-Pilih Karyawan-</option>
                                     @foreach ($karyawan as $k)
                                         <option value="{{ $k->nama }}">{{ $k->nama }}</option>
@@ -229,7 +229,7 @@
                 var html_code = "<div class='row' id='row" + count + "'>";
 
                 html_code +=
-                    ' <div class="col-5 mt-2"><select name="nama[]" id="" class="form-control select"> <option value="">-Piih Karyawan-</option><option value="MAS_ARI">MAS_ARI</option><option value="WAWAN">WAWAN</option><option value="ANDI">ANDI</option><option value="INOV">INOV</option><option value="GUNAWAN">GUNAWAN</option><option value="FAJAR">FAJAR</option><option value="FAUZAN">FAUZAN</option><option value="YADI">YADI</option><option value="UGI">UGI</option><option value="SUFIAN">SUFIAN</option><option value="RENALDI">RENALDI</option><option value="AHMAD">AHMAD</option><option value="LANA">LANA</option><option value="MADI">MADI</option><option value="FERI">FERI</option><option value="BUDIMAN">BUDIMAN</option><option value="AGUS">AGUS</option><option value="HENDRI">HENDRI</option><option value="HERLINA">HERLINA</option><option value="RIDWAN">RIDWAN</option><option value="BUDI_RAHMAT">BUDI_RAHMAT</option><option value="SERLI">SERLI</option><option value="TRAINING">TRAINING</option><option value="DEA">DEA</option><option value="AISYAH">AISYAH</option><option value="ALBANJARI">ALBANJARI</option><option value="DAYAT">DAYAT</option><option value="FAZRI">FAZRI</option><option value="PUTRI">PUTRI</option><option value="ANGEL">ANGEL</option><option value="KOMANG">KOMANG</option><option value="NETY">NETY</option><option value="AZIS">AZIS</option><option value="DEWI">DEWI</option><option value="JUNAIDI">JUNAIDI</option><option value="RIA">RIA</option><option value="Eren">Eren</option><option value="wahyudi">wahyudi</option> </select></div>';
+                    ' <div class="col-5 mt-2"><select name="nama[]" id="" class="form-control select"> @foreach ($karyawan as $k)<option value="{{ $k->nama }}">{{ $k->nama }}</option>@endforeach</select></div>';
 
                 html_code +=
                     ' <div class="col-5 mt-2"><input type="number" name="nominal[]" class="form-control"></div>';

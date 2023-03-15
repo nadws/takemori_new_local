@@ -15,31 +15,92 @@
         $harga = 0;
         $total2 = 0;
         foreach ($order2 as $o) :
+
+        if ($o->nm_menu == '') {
+                $id_distribusi = $o->id_distribusi;
+            }else{
             $qty += $o->qty;
             $harga += $o->harga;
             $id_distribusi = $o->id_distribusi;
             $total2 += $o->qty * $o->harga;
+            }
+
         ?>
+        @if ($o->nm_menu == '')
+        <input name="qty[]" type="hidden" max="<?= $o->qty ?>" min="0" detail="<?= $no ?>"
+            class="text-center form-control" value="<?=  $o->qty ?>">
+        <input type="hidden" max="<?= $o->qty ?>" min="0" detail="<?= $no ?>" class="text-center qty form-control"
+            value="<?=  $o->qty ?>">
+        <input name="harga[]" type="hidden" class="harga<?= $no ?>" value="<?= $o->harga ?>">
+        <input type="hidden" name="id_order[]" value="<?= $o->id_order ?>">
+        <input type="hidden" name="id_harga[]" value="<?= $o->id_harga ?>">
+        <input type="hidden" name="id_meja[]" value="<?= $o->id_meja ?>">
+        @else
         <tr>
-            <td><?= $i++ ?> </td>
-            <td><?= $o->id_meja ?></td>
-            <td><?= $o->nm_menu ?> </td>
+            @php
+            $no = $i++;
+            @endphp
+
+            <td>{{$no}}</td>
+            <td style="white-space: nowrap">
+                <?= $o->nm_meja ?>
+            </td>
+            <td>
+                <?= $o->nm_menu ?>
+            </td>
             <td style="white-space: nowrap;">
                 <!-- <a href=""><i class="fas fa-minus"></i></a> -->
-                <input name="qty[]" type="number" max="<?= $o->qty ?>" min="0" detail="<?= $o->id_order ?>"
+                <input name="qty[]" type="number" max="<?= $o->qty ?>" min="0" detail="<?= $no ?>"
                     class="text-center qty form-control" value="<?= $o->qty ?>">
                 <!-- <a href=""><i class="fas fa-plus"></i></a> -->
 
-                <input name="harga[]" type="hidden" class="harga<?= $o->id_order ?>" value="<?= $o->harga ?>">
+                <input name="harga[]" type="hidden" class="harga<?= $no ?>" value="<?= $o->harga ?>">
                 <input type="hidden" name="id_order[]" value="<?= $o->id_order ?>">
                 <input type="hidden" name="id_harga[]" value="<?= $o->id_harga ?>">
                 <input type="hidden" name="id_meja[]" value="<?= $o->id_meja ?>">
             </td>
-            <td style="text-align: center;"><?= number_format($o->harga, 0) ?></td>
-            <td style="text-align: center;" class="total<?= $o->id_order ?>"><?= number_format($o->qty * $o->harga, 0) ?>
+            <td style="text-align: center;">
+                <?= number_format($o->harga, 0) ?>
             </td>
-            <td><input type="hidden" class="tl" id="total_id<?= $o->id_order ?>"
-                    value="<?= $o->qty * $o->harga ?>"></td>
+            <td style="text-align: center;" class="total<?= $no ?>">
+                <?= number_format($o->qty * $o->harga, 0) ?>
+            </td>
+            <td><input type="hidden" class="tl" id="total_id<?= $no ?>" value="<?= $o->qty * $o->harga ?>">
+            </td>
+        </tr>
+        @endif
+        <?php endforeach ?>
+
+        {{-- majo --}}
+        <?php
+        $qty_majo = 0;
+        $total2_majo =0;
+        foreach ($majo as $o):
+        $qty_majo += $o->jumlah;
+        $total2_majo += $o->jumlah * $o->harga;
+        ?>
+        <tr>
+            @php
+            $no = $i++;
+            @endphp
+            <td>{{$no}}</td>
+            <td>{{$o->nm_meja}}</td>
+            <td>{{$o->nm_produk}}</td>
+            <td>
+                <input name="qty_majo[]" type="number" max="{{$o->jumlah}}" min="0" detail="<?= $no ?>"
+                    class="text-center qty form-control" value="{{$o->jumlah}}" readonly>
+            </td>
+            <td style="text-align: center;">
+                <?= number_format($o->harga, 0) ?>
+                <input name="harga[]" type="hidden" class="harga<?= $no ?>" value="<?= $o->harga ?>">
+            </td>
+            <td style="text-align: center;" class="total<?= $no ?>">
+                <?= number_format($o->jumlah * $o->harga, 0) ?>
+            </td>
+            <td>
+                <input type="hidden" class="tl_majo" id="total_id<?= $no ?>" value="<?= $o->jumlah * $o->harga ?>">
+                <input type="hidden" name="id_pembelian[]" value="{{$o->id_pembelian}}">
+            </td>
         </tr>
         <?php endforeach ?>
     </tbody>
@@ -54,13 +115,14 @@
             <th style="background-color: #25C584;color:white;font-size: 16px;text-align: center;"> <input type="hidden"
                     id="hrg" value="<?= $harga ?>"></th>
             <th style="background-color: #25C584;color:white;font-size: 16px; text-align: center; "
-                class="total_hrg"><?= number_format($total2, 0) ?>
+                class="total_hrg"><?= number_format($total2 + $total2_majo, 0) ?>
             </th>
             <th style="background-color: #25C584;color:white;font-size: 16px;">
                 <input type="hidden" class="ttl_hrg" id="ttl_hrg" value="<?= $total2 ?>">
                 <input type="hidden" class="ttl_hrg2" id="ttl_hrg2" value="<?= $total2 ?>">
                 <input type="hidden" class="order" value="<?= $no ?>">
                 <input type="hidden" name="id_distribusi" value="<?= $id_distribusi ?>">
+                <input type="hidden" name="total_majo" id="ttl_majo" value="<?= $total2_majo ?>">
             </th>
         </tr>
     </tbody>
@@ -91,17 +153,17 @@
 
 
         <?php if ($tb_dis->tax == 'Y') : ?>
-        <?php $tax = ($total2 + $service + $ongkir) * 0.1; ?>
+        <?php $tax = ($total2 + $total2_majo +  $service + $ongkir) * 0.1; ?>
         <?php else : ?>
         <?php $tax = 0; ?>
         <?php endif ?>
 
-        <?php $total = $total2 + $service + $tax + $ongkir; ?>
+        <?php $total = $total2 + $total2_majo + $service + $tax + $ongkir; ?>
 
         <?php
         $a = $total;
         $b = number_format(substr($a, -3), 0);
-        
+
         if ($b == '00') {
             $c = $a;
             $round = '00';
@@ -169,9 +231,9 @@
             </td>
             <td></td>
         </tr>
-        
+
         {{-- diskon --}}
-        
+
         {{--  --}}
         <?php if ($tb_dis->service == 'Y') : ?>
         <tr>
@@ -223,7 +285,7 @@
                 <input type="hidden" name="sDiskon" class="sDiskon" value="<?= $round ?>">
                 <input type="hidden" name="vDiskon" class="vDiskon" value="">
                 <input type="hidden" id="jumlah_dp">
-           
+
                 <input type="hidden" name="kode_dp" id="kode_dp">
             </td>
             <td></td>

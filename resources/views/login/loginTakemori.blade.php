@@ -30,6 +30,7 @@
                             <form action="{{ route('aksiLoginTkm') }}" method="post">
                                 @csrf
                                 <input type="hidden" value="tkm" name="jenis[]">
+                                <input type="hidden" value="sdb" name="jenis[]">
                                 <input type="hidden" value="adm" name="jenis[]">
                                 <div class="form-group">
                                     <label for="email" class="sr-only">Username</label>

@@ -144,6 +144,26 @@ class DownloadController extends Controller
             ];
             Karyawan::create($data);
         }
+        DB::table('tb_karyawan_majo')->truncate();
+        foreach ($dt_karyawan['karyawan_majo'] as $v) {
+            $datam = [
+                'kd_karyawan' => $v['kd_karyawan'],
+                'id_karyawan' => $v['id_karyawan'],
+                'nm_karyawan' => $v['nm_karyawan'],
+                'posisi' => $v['posisi'],
+                'pangkat' => $v['pangkat'],
+                'gaji_e' => $v['gaji_e'],
+                'gaji_m' => $v['gaji_m'],
+                'gaji_sp' => $v['gaji_sp'],
+                'gaji_off' => $v['gaji_off'],
+                'bonus' => $v['bonus'],
+                'bonus_posisi' => $v['bonus_posisi'],
+                'tgl_join' => $v['tgl_join'],
+                'tkmr' => $v['tkmr'],
+                'sdb' => $v['sdb'],
+            ];
+            DB::table('tb_karyawan_majo')->insert($datam);
+        }
 
         $gaji = Http::get("https://ptagafood.com/api/gaji");
         $dt_gaji = json_decode($gaji, TRUE);
@@ -201,12 +221,60 @@ class DownloadController extends Controller
 
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
     }
+    public function tb_majo(Request $r)
+    {
+        $tb_majo = Http::get("https://ptagafood.com/api/tb_stok_majo");
+        $data3 = [];
+        // foreach ($tb_majo['stok_masuk_tkm'] as $t) {
+        //     array_push($data3, [
+        //         'id_stok_produk' => $t['id_stok_produk'],
+        //         'kode_stok_produk' => $t['kode_stok_produk'],
+        //         'id_lokasi' => $t['id_lokasi'],
+        //     ]);
+        // }
+        // $response = Http::acceptJson()->post('https://ptagafood.com/api/edit_stok_server', $data3);
 
+        DB::table('tb_stok_produk')->truncate();
+
+         foreach ($tb_majo['stok_masuk_tkm'] as $v) {
+            $data = [
+                'id_stok_produk' => $v['id_stok_produk'],
+                'kode_stok_produk' => $v['kode_stok_produk'],
+                'id_produk' => $v['id_produk'],
+                'stok_program' => $v['stok_program'],
+                'harga' => $v['harga'],
+                'debit' => $v['debit'],
+                'kredit' => $v['kredit'],
+                'ttl_stok' => $v['ttl_stok'],
+                'tgl' => $v['tgl'],
+                'tgl_input' => $v['tgl_input'],
+                'ket' => $v['ket'],
+                // 'admin' => $v['admin'],
+                // 'jenis' => $v['jenis'],
+                'status' => $v['status'],
+                'id_lokasi' => $v['id_lokasi'],
+                'catatan' => $v['catatan'],
+                'stok_aktual' => $v['stok_aktual'],
+            ];
+            DB::table('tb_stok_produk')->insert($data);
+        }
+
+        return redirect()->route('sukses2')->with('sukses', 'Sukses');
+
+    }
     public function menu(Request $request)
     {
         $menu = Http::get("https://ptagafood.com/api/menu_tb");
         $dt_menu = json_decode($menu, TRUE);
         Menu::truncate();
+        Harga::truncate();
+        DB::table('tb_station')->truncate();
+        Kategori::truncate();
+        Handicap::truncate();
+        DB::table('tb_produk')->truncate();
+        DB::table('tb_kategori_majo')->truncate();
+        DB::table('tb_satuan_majo')->truncate();
+        
         foreach ($dt_menu['menu'] as $v) {
             $kode_server = $v['id_menu'];
             $v_local = DB::selectOne("SELECT * from tb_menu as a where a.id_menu = '$kode_server'");
@@ -217,6 +285,7 @@ class DownloadController extends Controller
                 'kd_menu' => $v['kd_menu'],
                 'nm_menu' => $v['nm_menu'],
                 'tipe' => $v['tipe'],
+                'id_station' => $v['id_station'],
                 'image' => $v['image'],
                 'jenis' => $v['jenis'],
                 'lokasi' => $v['lokasi'],
@@ -226,10 +295,8 @@ class DownloadController extends Controller
             ];
             Menu::create($data);
         }
-        $harga = Http::get("https://ptagafood.com/api/harga_tb");
-        $dt_harga = json_decode($harga, TRUE);
-        Harga::truncate();
-        foreach ($dt_harga['harga'] as $v) {
+
+        foreach ($dt_menu['harga'] as $v) {
             $data = [
                 'id_harga' => $v['id_harga'],
                 'id_menu' => $v['id_menu'],
@@ -239,10 +306,7 @@ class DownloadController extends Controller
             Harga::create($data);
         }
 
-        $handicap = Http::get("https://ptagafood.com/api/handicap");
-        $dt_handicap = json_decode($handicap, TRUE);
-        Handicap::truncate();
-        foreach ($dt_handicap['handicap'] as $v) {
+        foreach ($dt_menu['handicap'] as $v) {
             $data = [
                 'id_handicap' => $v['id_handicap'],
                 'handicap' => $v['handicap'],
@@ -252,10 +316,8 @@ class DownloadController extends Controller
             ];
             Handicap::create($data);
         }
-        $kategori = Http::get("https://ptagafood.com/api/kategori_menu");
-        $dt_kategori = json_decode($kategori, TRUE);
-        Kategori::truncate();
-        foreach ($dt_kategori['kategori_menu'] as $v) {
+
+        foreach ($dt_menu['kategori_menu'] as $v) {
             $data = [
                 'kd_kategori' => $v['kd_kategori'],
                 'kategori' => $v['kategori'],
@@ -264,7 +326,49 @@ class DownloadController extends Controller
             Kategori::create($data);
         }
 
-        
+        foreach ($dt_menu['station'] as $v) {
+            $data = [
+                'id_station' => $v['id_station'],
+                'nm_station' => $v['nm_station'],
+                'id_lokasi' => $v['id_lokasi'],
+            ];
+            DB::table('tb_station')->insert($data);
+        }
+
+        foreach ($dt_menu['produk_majo_tkm'] as $v) {
+            $data = [
+                'id_produk' => $v['id_produk'],
+                'id_kategori' => $v['id_kategori'],
+                'id_satuan' => $v['id_satuan'],
+                'sku' => $v['sku'],
+                'nm_produk' => $v['nm_produk'],
+                'harga_modal' => $v['harga_modal'],
+                'harga' => $v['harga'],
+                'stok' => $v['stok'],
+                'terjual' => $v['terjual'],
+                'foto' => $v['foto'],
+                'diskon' => $v['diskon'],
+                'komisi' => $v['komisi'],
+                'monitoring' => $v['monitoring'],
+                'id_lokasi' => $v['id_lokasi'],
+            ];
+            DB::table('tb_produk')->insert($data);
+        }
+
+        foreach($dt_menu['kategori_majo'] as $v) {
+            $data = [
+                'id_kategori' => $v['id_kategori'],
+                'nm_kategori' => $v['nm_kategori'],
+            ];
+            DB::table('tb_kategori_majo')->insert($data);
+        }
+        foreach($dt_menu['satuan_majo'] as $v) {
+            $data = [
+                'id_satuan' => $v['id_satuan'],
+                'satuan' => $v['satuan'],
+            ];
+            DB::table('tb_satuan_majo')->insert($data);
+        }
 
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
     }

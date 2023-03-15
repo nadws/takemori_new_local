@@ -45,6 +45,7 @@
                                             <th rowspan="2" style="font-size: 12px;">Tanggal</th>
                                             <th rowspan="2" style="font-size: 12px;">No Order</th>
                                             <th rowspan="2" style="font-size: 12px;">Meja</th>
+                                            <th rowspan="2" style="font-size: 12px;">Sub Total</th>
                                             <th rowspan="2" style="font-size: 12px;">Total</th>
                                             <th rowspan="2" style="font-size: 12px;">Discount</th>
                                             <th rowspan="2" style="font-size: 12px;">Voucher</th>
@@ -81,6 +82,7 @@
                                             <td>
                                                 <?= $inv->nm_meja ?>
                                             </td>
+                                            <td>{{number_format($inv->total_orderan,0)}}</td>
                                             <td>
                                                 <?= number_format($inv->total_orderan + $inv->tax + $inv->service + $inv->ongkir + $inv->round, 0) ?>
                                             </td>

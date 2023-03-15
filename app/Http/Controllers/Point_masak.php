@@ -66,38 +66,38 @@ class Point_masak extends Controller
                         WHERE a.id_status = '1' and a.tgl_masuk <= '$tgl2' and l.id_lokasi ='$id_lokasi' and a.id_posisi not in ('3','2') and a.point = 'Y'
                         group by a.id_karyawan
         ");
-            $server = DB::select("SELECT a.nama, b.rp_m, sum(l.qty_m) AS qty_m, sum(l.qty_e) AS qty_e, sum(l.qty_sp) AS qty_sp, b.rp_e, b.rp_sp, b.komisi
-        FROM tb_karyawan AS a
-        left join tb_gaji AS b ON b.id_karyawan = a.id_karyawan
-        LEFT JOIN (
-               SELECT c.id_karyawan,  c.status, c.id_lokasi,
-                if(c.status = 'M', COUNT(c.status), 0) AS qty_m,
-                if(c.status = 'E', COUNT(c.status), 0) AS qty_e,
-                if(c.status = 'SP', COUNT(c.status), 0) AS qty_sp,
-                if(c.status = 'OFF', COUNT(c.status), 0) AS qty_off
-                FROM tb_absen AS c 
-                WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi'
-                GROUP BY c.id_karyawan, c.status
-                ) AS l ON l.id_karyawan = a.id_karyawan
+    //         $server = DB::select("SELECT a.nama, b.rp_m, sum(l.qty_m) AS qty_m, sum(l.qty_e) AS qty_e, sum(l.qty_sp) AS qty_sp, b.rp_e, b.rp_sp, b.komisi
+    //     FROM tb_karyawan AS a
+    //     left join tb_gaji AS b ON b.id_karyawan = a.id_karyawan
+    //     LEFT JOIN (
+    //            SELECT c.id_karyawan,  c.status, c.id_lokasi,
+    //             if(c.status = 'M', COUNT(c.status), 0) AS qty_m,
+    //             if(c.status = 'E', COUNT(c.status), 0) AS qty_e,
+    //             if(c.status = 'SP', COUNT(c.status), 0) AS qty_sp,
+    //             if(c.status = 'OFF', COUNT(c.status), 0) AS qty_off
+    //             FROM tb_absen AS c 
+    //             WHERE c.tgl BETWEEN '$tgl1' AND '$tgl2' and c.id_lokasi = '$id_lokasi'
+    //             GROUP BY c.id_karyawan, c.status
+    //             ) AS l ON l.id_karyawan = a.id_karyawan
 
-        LEFT JOIN (
-        SELECT a.admin, SUM(if(a.voucher != '0' ,0, a.hrg )) AS komisi
-        FROM view_summary_server AS a
-        WHERE a.tgl BETWEEN '$tgl1' AND '$tgl2'
-        GROUP BY a.admin
-        ) AS b ON b.admin = a.nama
+    //     LEFT JOIN (
+    //     SELECT a.admin, SUM(if(a.voucher != '0' ,0, a.hrg )) AS komisi
+    //     FROM view_summary_server AS a
+    //     WHERE a.tgl BETWEEN '$tgl1' AND '$tgl2'
+    //     GROUP BY a.admin
+    //     ) AS b ON b.admin = a.nama
 
-                WHERE  a.tgl_masuk <= '$tgl2' and l.id_lokasi ='$id_lokasi' and a.id_status ='2'
-                group by a.id_karyawan
+    //             WHERE  a.tgl_masuk <= '$tgl2' and l.id_lokasi ='$id_lokasi' and a.id_status ='2'
+    //             group by a.id_karyawan
             
 
 
                     
-    ");
+    // ");
             $data = [
                 'title' => 'Point Masak',
                 'masak' => $masak,
-                'server' => $server,
+                // 'server' => $server,
                 'tgl1' => $tgl1,
                 'tgl2' => $tgl2,
                 'service' => $total_not_gojek,

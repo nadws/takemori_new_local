@@ -102,6 +102,9 @@
                         @if(Auth::user()->id_posisi == 2 || Auth::user()->id_posisi == 1)
                         <li><a href="{{route('point_masak')}}">Point Masak</a></li>
                         @endif
+                        @if(in_array(Auth::user()->id_posisi, [5,15,16,17,18,1,2,3,4]))
+                        <li><a href="{{route('viewKomServer')}}">Point Server</a></li>
+                        @endif
                     </ul>
                 </li>
 
@@ -132,7 +135,11 @@
 
                     </ul>
                 </li>
-
+                <li>
+                    <a href="{{ route('produk') }}"><img
+                            src="https://ptagafood.com/assets/img_menu/stock.png"><span>STK</span>
+                    </a>
+                </li>
                 <?php } ?>
             </ul>
         </div>
