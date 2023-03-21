@@ -1,0 +1,71 @@
+create view view_nilai_masak as
+
+SELECT
+    `resto`.`tb_order`.`id_order` AS `id_order`,
+    `resto`.`tb_order`.`tgl` AS `tgl`,
+    `resto`.`tb_order`.`no_order` AS `no_order`,
+    `resto`.`tb_order`.`id_harga` AS `id_harga`,
+    `resto`.`tb_order`.`id_lokasi` AS `id_lokasi`,
+    `resto`.`tb_order`.`id_distribusi` AS `id_distribusi`,
+    `resto`.`tb_order`.`qty` AS `qty`,
+    `resto`.`tb_order`.`id_koki1` AS `id_koki1`,
+    `resto`.`tb_order`.`id_koki2` AS `id_koki2`,
+    `resto`.`tb_order`.`id_koki3` AS `id_koki3`,
+    TIMESTAMPDIFF(
+        MINUTE,
+        `resto`.`tb_order`.`j_mulai`,
+        `resto`.`tb_order`.`j_selesai`
+    ) AS `lama_masak`,
+    IF(
+        `resto`.`tb_order`.`id_koki1` > 0 AND `resto`.`tb_order`.`id_koki2` > 0 AND `resto`.`tb_order`.`id_koki3` > 0,
+        IF(
+            `c`.`tipe` = 'drink',
+            `d`.`point` / 2,
+            `d`.`point`
+        ) / 3,
+        IF(
+            `resto`.`tb_order`.`id_koki1` > 0 AND `resto`.`tb_order`.`id_koki2` > 0,
+            IF(
+                `c`.`tipe` = 'drink',
+                `d`.`point` / 2,
+                `d`.`point`
+            ) / 2,
+            IF(
+                `c`.`tipe` = 'drink',
+                `d`.`point` / 2,
+                `d`.`point`
+            )
+        )
+    ) AS `nilai_koki`,
+    IF(
+        `resto`.`tb_order`.`id_koki1` > 0 AND `resto`.`tb_order`.`id_koki2` > 0 AND `resto`.`tb_order`.`id_koki3` > 0,
+        3,
+        IF(
+            `resto`.`tb_order`.`id_koki1` > 0 AND `resto`.`tb_order`.`id_koki2` > 0,
+            2,
+            1
+        )
+    ) AS `jml_koki`,
+    `c`.`tipe` AS `tipe`,
+    `d`.`point` AS `point`
+FROM
+    (
+        (
+            (
+                `resto`.`tb_order`
+            LEFT JOIN `resto`.`tb_harga` `b`
+            ON
+                (
+                    `b`.`id_harga` = `resto`.`tb_order`.`id_harga`
+                )
+            )
+        LEFT JOIN `resto`.`tb_menu` `c`
+        ON
+            (`c`.`id_menu` = `b`.`id_menu`)
+        )
+    LEFT JOIN `resto`.`tb_handicap` `d`
+    ON
+        (`d`.`id_handicap` = `c`.`id_handicap`)
+    )
+WHERE
+    `resto`.`tb_order`.`void` = 0 AND `resto`.`tb_order`.`aktif` = 2

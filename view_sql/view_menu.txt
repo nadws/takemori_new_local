@@ -1,0 +1,29 @@
+create view view_menu as 
+
+SELECT
+    `b`.`tipe` AS `tipe`,
+    `a`.`id_harga` AS `id_harga`,
+    `a`.`id_menu` AS `id_menu`,
+    `a`.`id_distribusi` AS `id_distribusi`,
+    `a`.`harga` AS `harga`,
+    `b`.`nm_menu` AS `nm_menu`,
+    `c`.`nm_distribusi` AS `nm_distribusi`,
+    `b`.`image` AS `image`,
+    `b`.`aktif` AS `akv`,
+    `b`.`lokasi` AS `lokasi`,
+    `b`.`id_station` AS `id_station`,
+    `b`.`id_kategori` AS `id_kategori`
+FROM
+    (
+        (
+            `resto`.`tb_harga` `a`
+        LEFT JOIN `resto`.`tb_menu` `b`
+        ON
+            (`a`.`id_menu` = `b`.`id_menu`)
+        )
+    LEFT JOIN `resto`.`tb_distribusi` `c`
+    ON
+        (
+            `a`.`id_distribusi` = `c`.`id_distribusi`
+        )
+    )

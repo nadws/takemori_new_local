@@ -1,0 +1,73 @@
+create view view_nilai_masak2 as
+SELECT
+    `koki_masak`.`id_order` AS `id_order`,
+    `koki_masak`.`tgl` AS `tgl`,
+    `koki_masak`.`no_order` AS `no_order`,
+    `koki_masak`.`id_harga` AS `id_harga`,
+    `koki_masak`.`id_lokasi` AS `id_lokasi`,
+    `koki_masak`.`id_distribusi` AS `id_distribusi`,
+    `koki_masak`.`qty` AS `qty`,
+    `koki_masak`.`koki` AS `koki`,
+    `koki_masak`.`lama_masak` AS `lama_masak`,
+    `koki_masak`.`nilai_koki` AS `nilai_koki`,
+    `koki_masak`.`jml_koki` AS `jml_koki`,
+    `koki_masak`.`ket` AS `ket`
+FROM
+    (
+    SELECT
+        `view_nilai_masak`.`id_order` AS `id_order`,
+        `view_nilai_masak`.`tgl` AS `tgl`,
+        `view_nilai_masak`.`no_order` AS `no_order`,
+        `view_nilai_masak`.`id_harga` AS `id_harga`,
+        `view_nilai_masak`.`id_lokasi` AS `id_lokasi`,
+        `view_nilai_masak`.`id_distribusi` AS `id_distribusi`,
+        `view_nilai_masak`.`qty` AS `qty`,
+        `view_nilai_masak`.`id_koki1` AS `koki`,
+        `view_nilai_masak`.`lama_masak` AS `lama_masak`,
+        `view_nilai_masak`.`nilai_koki` AS `nilai_koki`,
+        `view_nilai_masak`.`jml_koki` AS `jml_koki`,
+        'koki1' AS `ket`
+    FROM
+        `resto`.`view_nilai_masak`
+    WHERE
+        `view_nilai_masak`.`id_koki1` > 0
+    UNION ALL
+SELECT
+    `view_nilai_masak`.`id_order` AS `id_order`,
+    `view_nilai_masak`.`tgl` AS `tgl`,
+    `view_nilai_masak`.`no_order` AS `no_order`,
+    `view_nilai_masak`.`id_harga` AS `id_harga`,
+    `view_nilai_masak`.`id_lokasi` AS `id_lokasi`,
+    `view_nilai_masak`.`id_distribusi` AS `id_distribusi`,
+    `view_nilai_masak`.`qty` AS `qty`,
+    `view_nilai_masak`.`id_koki2` AS `koki`,
+    `view_nilai_masak`.`lama_masak` AS `lama_masak`,
+    `view_nilai_masak`.`nilai_koki` AS `nilai_koki`,
+    `view_nilai_masak`.`jml_koki` AS `jml_koki`,
+    'koki2' AS `ket`
+FROM
+    `resto`.`view_nilai_masak`
+WHERE
+    `view_nilai_masak`.`id_koki2` > 0
+UNION ALL
+SELECT
+    `view_nilai_masak`.`id_order` AS `id_order`,
+    `view_nilai_masak`.`tgl` AS `tgl`,
+    `view_nilai_masak`.`no_order` AS `no_order`,
+    `view_nilai_masak`.`id_harga` AS `id_harga`,
+    `view_nilai_masak`.`id_lokasi` AS `id_lokasi`,
+    `view_nilai_masak`.`id_distribusi` AS `id_distribusi`,
+    `view_nilai_masak`.`qty` AS `qty`,
+    `view_nilai_masak`.`id_koki3` AS `koki`,
+    `view_nilai_masak`.`lama_masak` AS `lama_masak`,
+    `view_nilai_masak`.`nilai_koki` AS `nilai_koki`,
+    `view_nilai_masak`.`jml_koki` AS `jml_koki`,
+    'koki3' AS `ket`
+FROM
+    `resto`.`view_nilai_masak`
+WHERE
+    `view_nilai_masak`.`id_koki3` > 0
+) `koki_masak`
+ORDER BY
+    `koki_masak`.`id_order`,
+    `koki_masak`.`ket`
