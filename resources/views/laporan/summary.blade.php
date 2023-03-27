@@ -140,7 +140,7 @@ $total_total = $total_gojek->total + $total_not_gojek->total + $service_charge +
                 <td style="font-weight: bold;">total total</td>
                 <td style="font-weight: bold;" width="1%">:</td>
                 <td></td>
-                <td style="text-align: right;font-weight: bold;"><?= number_format($transaksi->total_bayar, 0) ?></td>
+                <td style="text-align: right;font-weight: bold;"><?= number_format($transaksi->total_bayar + $transaksi->dp, 0) ?></td>
             </tr>
 
 
