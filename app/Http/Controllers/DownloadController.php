@@ -52,7 +52,7 @@ class DownloadController extends Controller
 
     public function voucher(Request $request)
     {
-        $voucher = Http::get("https://ptagafood.com/api/voucher_tkmr");
+        $voucher = Http::get("https://ptagafood.com/api/voucher_sdb");
         $dt_voucher = json_decode($voucher, TRUE);
         foreach ($dt_voucher['voucher'] as $v) {
             $v_lokal = Voucher::where('kode', $v['kode'])->first();
@@ -109,7 +109,7 @@ class DownloadController extends Controller
 
     public function discount(Request $request)
     {
-        $discount = Http::get("https://ptagafood.com/api/diskon_tkm");
+        $discount = Http::get("https://ptagafood.com/api/diskon_sdb");
         $dt_discount = json_decode($discount, TRUE);
         Discount::truncate();
         foreach ($dt_discount['diskon'] as $v) {
@@ -236,7 +236,7 @@ class DownloadController extends Controller
 
         DB::table('tb_stok_produk')->truncate();
 
-         foreach ($tb_majo['stok_masuk_tkm'] as $v) {
+         foreach ($tb_majo['stok_masuk_sdb'] as $v) {
             $data = [
                 'id_stok_produk' => $v['id_stok_produk'],
                 'kode_stok_produk' => $v['kode_stok_produk'],
@@ -335,7 +335,7 @@ class DownloadController extends Controller
             DB::table('tb_station')->insert($data);
         }
 
-        foreach ($dt_menu['produk_majo_tkm'] as $v) {
+        foreach ($dt_menu['produk_majo_sdb'] as $v) {
             $data = [
                 'id_produk' => $v['id_produk'],
                 'id_kategori' => $v['id_kategori'],
