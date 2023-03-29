@@ -28,7 +28,7 @@
                         </div>
                         <div class="card">
                             <div class="card-body">
-                                <form action="<?= route('save_transaksi') ?>" method="post" class="form_save">
+                                <form class="form_save">
                                     @csrf
                                     <input type="hidden" name="no_order" id="no_order" value="<?= $no ?>">
                                     <div id="orderan">
@@ -193,10 +193,25 @@
                 var url = "<?= route('perhitungan') ?>?order=" + order + '&ttl=' + ttl_harga;
                 $('#perhitungan').load(url);
             });
+            var isSubmitting = false;
+            $(document).on('submit', '.form_save', function(e) {
+                if(!isSubmitting) {
+                    isSubmitting = true
+                    $.ajax({
+                        type: "POST",
+                        url: "{{route('save_transaksi')}}",
+                        data: $(".form_save").serialize(),
+                        success: function (r) {
+                            document.location.href = "{{route('pembayaran2')}}?no="+r
+                        }
+                    });
 
-            $(document).on('submit', '.form_save', function(event) {
-                //   event.preventDefault();
+                    setTimeout(() => {
 
+                        isSubmitting = false
+                    }, 15000);
+                }
+                e.preventDefault();
                 $('.save_btn').hide();
                 // $('.save_loading').show();
 

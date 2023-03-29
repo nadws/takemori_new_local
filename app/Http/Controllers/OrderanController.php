@@ -189,6 +189,7 @@ class OrderanController extends Controller
             'tanggal' => date('Y-m-d'),
         ];
 
+        
         Invoice2::create($data);
 
         for ($x = 0; $x < sizeof($id_order); $x++) {
@@ -638,7 +639,9 @@ class OrderanController extends Controller
             Jurnal::create($ppd);
         }
 
-        return redirect()->route('pembayaran2', ['no' => $hasil]);
+        return $hasil;
+
+        // return redirect()->route('pembayaran2', ['no' => $hasil]);
     }
 
     public function pembayaran2(Request $request)
