@@ -299,7 +299,7 @@ class MejaController extends Controller
         $majo = DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
         FROM tb_pembelian AS a
         LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
-        WHERE a.no_nota= '$id'
+        WHERE a.no_nota = '$id' AND a.lokasi = '2' and a.selesai = 'diantar'
         ");
         $data = [
             'order' => $order,
@@ -824,6 +824,8 @@ class MejaController extends Controller
         $hrg_majo = $r->hrg_majo;
         $admin =  Auth::user()->nama;
         $lokasi = $r->session()->get('id_lokasi');
+
+       
 
 
         $d_produk = DB::table('tb_produk')->where('id_produk', $id_harga_majo)->where('id_lokasi', $lokasi)->first();

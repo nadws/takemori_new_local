@@ -266,7 +266,7 @@
 
 
                     </div>
-                    
+
 
                 </div>
                 <div class="modal-footer">
@@ -507,11 +507,6 @@
 
             }
             setInterval(function() {
-                $.ajax({
-                    type: "GET",
-                    dataType: "json",
-                    data: {},
-                });
                 load_distribusi2();
                 load_tugas();
             }, 10000);
@@ -897,9 +892,9 @@
         $(document).on('submit', '#tambah_pesanan_new_majo', function(event) {
                 event.preventDefault();
                 $('.btn_save_majo').hide();
-                var kd_order = $('#kd_order').val()
-                var id_dis = $('#id_dis').val()
-                var meja = $('#meja').val()
+                var kd_order = $('#kd_order_majo').val()
+                var id_dis = $('#id_dis_majo').val()
+                var meja = $('#meja_majo').val()
                 var qty_majo = $('#qty_majo').val()
                 var hrg_majo = $('#hrg_majo').val()
 
