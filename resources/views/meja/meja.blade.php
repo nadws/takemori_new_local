@@ -739,7 +739,7 @@
                 var delete_row = $(this).data("row");
                 $('#' + delete_row).remove();
             });
-
+            var isSubmitting = false;
             $(document).on('submit', '#tambah_pesanan_new', function(event) {
                 event.preventDefault();
                 $('#btn_tambah_pesanan').hide();
@@ -752,7 +752,8 @@
                 var id_harga = $("#id_harga").val()
 
                 var pesanan_new = $("#tambah_pesanan_new").serialize()
-
+                if(!isSubmitting) {
+                    isSubmitting = true
                 $.ajax({
                     url: "{{ route('save_pesanan_new') }}?" + pesanan_new,
                     method: 'GET',
@@ -780,11 +781,16 @@
                         $('.id_harga').trigger('change');
                         $('.row_tambah_menu').remove();
 
-                        $('#btn_tambah_pesanan').show();
-
-
+                        
+                        
                     }
                 });
+                setTimeout(() => {
+                    
+                    isSubmitting = false
+                }, 15000);
+            }
+            $('#btn_tambah_pesanan').show();
 
             });
 
@@ -887,7 +893,7 @@
 
 
         });
-
+        var isSubmitting = false;
         $(document).on('submit', '#tambah_pesanan_new_majo', function(event) {
                 event.preventDefault();
                 $('.btn_save_majo').hide();
@@ -903,7 +909,8 @@
                 });
 
                 var id_harga_majo = $(".id_harga_majo").val()
-
+                if(!isSubmitting) {
+                    isSubmitting = true
                 $.ajax({
                 url: "{{ route('save_pesanan_majo') }}",
                 method: "GET",
@@ -927,10 +934,15 @@
                             title: 'Pesanan berhasil ditambahkan'
                         });
                     load_tugas();
-                    $('.btn_save_majo').show();
                     $('#tbh_menu_majo').modal('toggle');
                 }
             });
+                        setTimeout(() => {
+
+            isSubmitting = false
+            }, 15000);
+            }
+            $('.btn_save_majo').show();
             });
 
 
