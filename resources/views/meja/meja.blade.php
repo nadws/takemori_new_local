@@ -278,7 +278,8 @@
     </div>
 </form>
 
-<form id="e_pembayaran">
+<form action="{{ route('edit_pembayaran') }}" method="post">
+    @csrf
     <div class="modal fade" id="edit_pembayaran" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -345,6 +346,25 @@
 @section('script')
 <script>
     $(document).ready(function() {
+        $(document).on('keyup', '.pembayaran', function() {
+                var total_tagihan = parseInt($('#total_tagihan').val());
+
+                var total_pembayaran = 0;
+                $(".pembayaran").each(function() {
+                    total_pembayaran += parseFloat($(this).val());
+                });
+                var total_bayar = total_pembayaran;
+
+
+                // console.log(total_bayar);
+
+                if (total_tagihan <= total_bayar) {
+                    $('#btn_e_pembayaran').removeAttr('disabled');
+                } else {
+                    $('#btn_e_pembayaran').attr('disabled', 'true');
+                }
+            });
+            
             $(document).on('click', '.btn_tbh', function(event) {
                 $.ajax({
                     url: "{{ route('get_karyawan') }}",

@@ -2,14 +2,15 @@
 @section('content')
     <style>
         /* .icon-menu:hover{
-                                                                                                                                                                                        background: #C8BED8;
-                                                                                                                                                                                        border-radius: 50px;
-                                                                                                                                                                                    } */
+                background: #C8BED8;
+                border-radius: 50px;
+            } */
 
         h6 {
             color: #155592;
             font-weight: bold;
         }
+
     </style>
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -30,65 +31,64 @@
 
         <!-- Main content -->
         <div class="content">
-            <div class="container-fluid">
-                <div class="row ">
-                    <div class="col-lg-6">
-                        <form action="" id="Masuk">
-                            <div class="card">
-                                <div class="card-header bg-gradient">
-                                    <h5>Pengelolaan Data Laporan Penjualan</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <label for="">Dari</label>
-                                            <input type="date" id="tgl1" class="form-control">
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <label for="">Sampai</label>
-                                            <input type="date" id="tgl2" class="form-control">
-                                        </div>
-                                        <div class="col-lg-12 mt-2">
-                                            <label for="">Kategori</label>
-                                            <select name="" id="kategori" class="form-control select2bs4">
-                                                <option value="1">SUMMARY</option>
-                                                <option value="2">PER-ITEM</option>
-                                                <option value="3">PER-ITEM MAJO</option>
-                                                <option value="4">CLOSING</option>
-                                            </select>
-                                        </div>
-
+        <div class="container-fluid">
+            <div class="row ">
+                <div class="col-lg-6">
+                    <form action="" id="Masuk">
+                        <div class="card">
+                            <div class="card-header bg-gradient">
+                                <h5>Pengelolaan Data Laporan Penjualan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label for="">Dari</label>
+                                        <input type="date" id="tgl1" class="form-control">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="">Sampai</label>
+                                        <input type="date" id="tgl2" class="form-control">
+                                    </div>
+                                    <div class="col-lg-12 mt-2">
+                                        <label for="">Kategori</label>
+                                        <select name="" id="kategori" class="form-control select2bs4">
+                                            <option value="1">SUMMARY</option>
+                                            <option value="2">PER-ITEM</option>
+                                            <option value="4">JAM MASAK DAPUR</option>
+                                        </select>
                                     </div>
 
                                 </div>
-                                <div class="card-footer">
-                                    <button class="btn bg-gradient btn-block">Lanjutkan</button>
-                                </div>
+
                             </div>
-
-                        </form>
-                    </div>
-                    <div class="col-lg-6">
-                        <div id="data-laporan">
-
+                            <div class="card-footer">
+                                <button class="btn bg-gradient btn-block">Lanjutkan</button>
+                            </div>
                         </div>
-                        <div id="data-item">
 
-                        </div>
-                        <div id="data-server">
-
-                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-6">
+                    <div id="data-laporan">
 
                     </div>
-                    <div class="col-lg-12">
-                        <div id="cek-nota">
+                    <div id="data-item">
 
-                        </div>
+                    </div>
+                    <div id="data-server">
+
+                    </div>
+
+                </div>
+                <div class="col-lg-12">
+                    <div id="data-masak">
+
                     </div>
                 </div>
-                <!-- /.row -->
-            </div><!-- /.container-fluid -->
-        </div>
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
@@ -101,6 +101,7 @@
         .modal-lg-max {
             max-width: 900px;
         }
+
     </style>
 
     <div class="modal fade" id="koki_masak" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -116,12 +117,27 @@
 
                 </div>
                 <!-- <div class="modal-footer">
-                                                                                                                                                                                                        <button type="button" class="btn btn-costume" data-dismiss="modal">Close</button>
-                                                                                                                                                                                                        <button type="submit" class="btn btn-costume">Edit/Save</button>
-                                                                                                                                                                                                    </div> -->
+                                <button type="button" class="btn btn-costume" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-costume">Edit/Save</button>
+                            </div> -->
             </div>
         </div>
     </div>
+    <div class="modal fade" id="orderan" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content ">
+            <div class="modal-header btn-costume">
+                <h5 class="modal-title text-light" id="exampleModalLabel">Detail server order</h5>
+                <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="orderan_server">
+
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -142,31 +158,22 @@
                     $('#data-laporan').load(url);
                     $('#data-item').hide();
                     $('#data-server').hide();
-                    $('#cek-nota').hide();
-                } else if (kat == 2) {
+                    $('#data-masak').hide();
+                } else if(kat == '2') {
                     var url = "<?= route('item') ?>?tgl1=" + tgl1 + '&tgl2=' + tgl2;
                     $('#data-item').show();
                     $('#data-item').load(url);
                     $('#data-laporan').hide();
                     $('#data-server').hide();
-                    $('#cek-nota').hide();
-                } else if (kat == 3) {
-                    var url = "<?= route('item_majo') ?>?tgl1=" + tgl1 + '&tgl2=' + tgl2;
+                    $('#data-masak').hide();
+                } else if(kat == '3') {
+                    var url = "<?= route('server') ?>?tgl1=" + tgl1 + '&tgl2=' + tgl2;
                     $('#data-server').show();
                     $('#data-server').load(url);
                     $('#data-laporan').hide();
                     $('#data-item').hide();
-                    $('#cek-nota').hide();
-                } else if (kat == 4) {
-                    var url = "<?= route('cek_invoice') ?>?tgl1=" + tgl1 + '&tgl2=' + tgl2;
-                    $('#cek-nota').show();
-                    $('#cek-nota').load(url);
-                    $('#data-server').hide();
-                    $('#data-laporan').hide();
-                    $('#data-item').hide();
-                }
-
-
+                    $('#data-masak').hide();
+                } 
             });
 
             $(document).on('click', '#btn_telat', function() {
@@ -197,6 +204,24 @@
                     },
                     success: function(hasil) {
                         $("#form_pesanan_koki_masak").html(hasil);
+                    }
+                });
+            });
+            $(document).on('click', '.btn_orderan', function() {
+                var tgl1 = $(this).attr('tgl1');
+                var tgl2 = $(this).attr('tgl2');
+                var admin = $(this).attr('admin');
+
+                $.ajax({
+                    method: "GET",
+                    url: "<?= route('get_order_server') ?>",
+                    data: {
+                        tgl1: tgl1,
+                        tgl2: tgl2,
+                        admin: admin
+                    },
+                    success: function(hasil) {
+                        $("#orderan_server").html(hasil);
                     }
                 });
             });

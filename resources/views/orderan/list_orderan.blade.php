@@ -1,66 +1,66 @@
 @extends('template.master')
 @section('content')
-    <style>
-        h6 {
-            color: #155592;
-            font-weight: bold;
-        }
+<style>
+    h6 {
+        color: #155592;
+        font-weight: bold;
+    }
+</style>
 
-    </style>
 
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
 
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <div class="content-header">
-            <div class="container-fluid">
-
-            </div><!-- /.container-fluid -->
-        </div>
-        <div class="content">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-9">
-                        <a href=""></a>
-                        <div class="card mb-2" style="background-color: #25C584;">
-                            <div class="card-body">
-                                <h3 style="text-align: center; color:white"><?= $no ?></h3>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <form class="form_save">
-                                    @csrf
-                                    <input type="hidden" name="no_order" id="no_order" value="<?= $no ?>">
-                                    <div id="orderan">
-
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <!-- /.row -->
-            </div><!-- /.container-fluid -->
-        </div>
-        <!-- /.content -->
+        </div><!-- /.container-fluid -->
     </div>
-    <!-- /.content-wrapper -->
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <a href=""></a>
+                    <div class="card mb-2" style="background-color: #25C584;">
+                        <div class="card-body">
+                            <h3 style="text-align: center; color:white">
+                                <?= $no ?>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="form_save">
+                                @csrf
+                                <input type="hidden" name="no_order" id="no_order" value="<?= $no ?>">
+                                <div id="orderan">
 
-    <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark">
-        <!-- Control sidebar content goes here -->
-    </aside>
-    <style>
-        .modal-lg-max {
-            max-width: 900px;
-        }
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-    </style>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<!-- Control Sidebar -->
+<aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+</aside>
+<style>
+    .modal-lg-max {
+        max-width: 900px;
+    }
+</style>
 @endsection
 @section('script')
-    <script>
-        $(document).ready(function() {
+<script>
+    $(document).ready(function() {
             load_order();
 
             function load_order() {
@@ -222,19 +222,49 @@
                 var tax2 = $('.tax2').val();
                 var round2 = $('.round2').val();
                 var service2 = $('.servis2').val();
-                var ttl = parseInt(ttl_hrg2) + parseInt(ttl_majo) + parseInt(tax2) + parseInt(service2) + parseInt(round2)
+                var ttl = parseInt(ttl_hrg2) + parseInt(ttl_majo) + parseInt(tax2) + parseInt(service2) + parseInt(round2);
+                var minimum_rp = $("#minimum_rp").val();
+                var jenis_discount = $("#jenis_discount").val();
+                var disc = $("#disc").val();
+                var hidden_ttl_ttp_sebelum = $("#hidden_ttl_ttp_sebelum").val();
+
+                if (ttl < minimum_rp) {
+                    var grand_total = ttl;
+                } else {
+                    if (jenis_discount === 'Persen') {
+                        var grand_total = ttl * ((100 - parseInt(disc)) / 100);
+                    } else {
+                        var grand_total = ttl - parseInt(disc);
+                    }
+                    
+                }
+
+                            var a = Math.round(grand_total);
+                            var a_format = a.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+
+                            var b = a_format.substr(-3);
+                            if (b == '000') {
+                                grand = a;
+                                round = '000';
+                            } else if (b < 1000) {
+                                grand = a - b + 1000;
+                                round = 1000 - b;
+                            }
+                
 
 
                 $('#view_discount').val('');
                 $('#data_discount').val(0);
-                $('#total1').val(ttl);
-                $('#totalTetap').val(ttl);
+                $('#total1').val(grand);
+                $('#totalTetap').val(grand);
                 $('.sDiskon').val(round2);
                 $('.round').val(round2);
                 $('.servis1').val(service2);
                 $('.servis').html(service2);
                 $('.tax1').val(tax2);
                 $('.tax').html(tax2);
+                $('.ttl_ttp_sebelum').text(hidden_ttl_ttp_sebelum);
+                
 
                 $('.kd_voucher').val('');
                 $('#rupiah').val(0);
@@ -278,11 +308,37 @@
 
                             }
                             $("#jumlah_discount").val(data.disc);
-                            var tHarga = (parseInt(ttl_hrg) + parseInt(ttl_majo)) * (100 - parseInt(data.disc)) / 100 - voucher
+                            var tHarga = (parseInt(ttl_hrg) + parseInt(ttl_majo))  - voucher
                             var service = tHarga * 0.07;
                             var tax = (tHarga + service) * 0.1;
                             var t = tHarga + service + tax;
+
                             var a = Math.round(t);
+                            var a_format = a.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+
+                            var b = a_format.substr(-3);
+                            if (b == '000') {
+                                ttl_naik = a;
+                                round = '000';
+                            } else if (b < 1000) {
+                                ttl_naik = a - b + 1000;
+                                round = 1000 - b;
+                            }
+                            
+                            
+
+                            if (ttl_naik < data.minimum_rp) {
+                                Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        icon: 'error',
+                                        title: "Diskon berlaku minimal pembelanjaan " + data.minimum_rp
+                                    });
+                            } else {
+                                var diskon = ttl_naik * ((100 - parseInt(data.disc)) / 100);
+                            var a = Math.round(diskon);
                             var a_format = a.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 
                             var b = a_format.substr(-3);
@@ -307,14 +363,16 @@
                             $('#totalTetap').val(c);
                             $('.round').val(round);
                             $('.round2').val(round2);
-                            $('.sDiskon').val(tHarga);
-                            $('.servis').html(service);
-                            $('.servis1').val(service);
-                            $('.tax').html(tax);
-                            $('.tax1').val(tax);
+                            // $('.sDiskon').val(tHarga);
+                            // $('.servis').html(service);
+                            // $('.servis1').val(service);
+                            // $('.tax').html(tax);
+                            // $('.tax1').val(tax);
                             $('#jumlah_discount').val($("#jumlah_discount").val());
                             $("#view_discount").val($("#jumlah_discount").val()+' %');
                             $(".vDiskon").val($("#jumlah_discount").val());
+                            }
+                            
                         }
                     })
                 }
@@ -333,6 +391,9 @@
                 var vDiskon = $('.vDiskon').val();
                 var jumlahDp = $("#jumlah_dp").val();
                 var total_tetap = $('#totalTetap').val();
+                var minimum_rp = $("#minimum_rp").val();
+                var jenis_discount = $("#jenis_discount").val();
+                var disc = $("#disc").val();
                 
                 if (kode == '') {
                     Swal.fire({
@@ -442,14 +503,49 @@
                                                 tax = tax
                                                 service = service
                                             }
+
+                                            if (c < minimum_rp) {
+                                                var grand_total = c;
+                                            } else {
+                                                if (jenis_discount === 'Persen') {
+                                                    var grand_total = c *  ((100 - parseInt(disc)) / 100);
+                                                } else {
+                                                    var grand_total = c - parseInt(disc);
+                                                }
+                                            }
+
+                                            
+                                                
+                                            // var x = Math.round(grand_total);
+                                            // var x_format = x.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+
+                                            // var y = x_format.substr(-3);
+                                            // if (y == '000') {
+                                            //     z = x;
+                                            //     round = '000';
+                                            // } else if (b < 1000) {
+                                            //     z = x - y + 1000;
+                                            //     round = 1000 - y;
+                                            // }
+
+                                            
+
+
                                         }
 
+                                        if(grand_total === undefined) {
+                                                x = 0
+                                            } else {
+                                                x = grand_total
+                                            }
 
 
+                                        
 
 
-                                        $('#total1').val(c);
-                                        $('#totalTetap').val(c);
+                                        $('#total1').val(x);
+                                        $('#totalTetap').val(x);
+                                        $('.ttl_ttp_sebelum').text(c);
                                         $('#tvoucher').val(c);
                                         $('.servis').html(service);
                                         $('.tax').html(tax);
@@ -645,13 +741,12 @@
 
             $(document).on('keyup', '.pembayaran', function() {
                 // var diskon = parseInt($("#diskon").val());
-                var cash = parseInt($("#cash").val());
-                var mandiri_kredit = parseInt($("#mandiri_kredit").val());
-                var mandiri_debit = parseInt($("#mandiri_debit").val());
-                var bca_kredit = parseInt($("#bca_kredit").val());
-                var bca_debit = parseInt($("#bca_debit").val());
+                var total_pembayaran = 0;
+                $(".pembayaran").each(function() {
+                    total_pembayaran += parseFloat($(this).val());
+                });
                 var total = parseInt($("#total1").val());
-                var bayar = mandiri_kredit + mandiri_debit + cash + bca_kredit + bca_debit;
+                var bayar = total_pembayaran;
                 // alert(mandiri_kredit);
                 if (total <= bayar) {
                     $('#btn_bayar').removeAttr('disabled');
@@ -661,11 +756,11 @@
             });
 
         });
-    </script>
+</script>
 
 
-    <script>
-        function selection() {
+<script>
+    function selection() {
             var selected = document.getElementById("select1").value;
             if (selected == 0) {
                 document.getElementById("input1").removeAttribute("hidden");
@@ -673,5 +768,5 @@
                 //elsewhere actions
             }
         }
-    </script>
+</script>
 @endsection
