@@ -1,6 +1,5 @@
 <table class="table" x-data="{
-    @foreach ($klasifikasi_pembayaran as $k)
-    {{ $k->nm_klasifikasi }}: false, @endforeach
+    openRows: [],
 }">
     <thead>
         <th>No</th>
@@ -401,12 +400,12 @@
                             class="fas fa-cash-register"></i> Save</button></td>
     
             </tr>
-            @foreach ($klasifikasi_pembayaran as $k)
+            @foreach ($klasifikasi_pembayaran as $i => $k)
                 <tr>
                     <td style="font-weight: bold;" colspan="6">
                         {{ $k->nm_klasifikasi }}
                         <button type="button" class="btn btn-info btn-sm btn-buka float-right"
-                            @click="{{ $k->nm_klasifikasi }} = ! {{ $k->nm_klasifikasi }}">
+                        x-on:click="openRows.includes({{ $i }}) ? openRows = openRows.filter(item => item !== {{ $i }}) : openRows.push({{ $i }})">
                             <i class="fas fa-caret-down"></i>
                         </button>
                     </td>
@@ -418,7 +417,7 @@
                 @endphp
     
                 @foreach ($akun as $a)
-                    <tr x-show="{{ $k->nm_klasifikasi }}">
+                    <tr x-show="openRows.includes({{ $i }})">
                         <td colspan="3">{{ $a->nm_akun }}</td>
                         <td>:</td>
                         <td colspan="2"><input type="number" value="0" name="pembayaran[]"
