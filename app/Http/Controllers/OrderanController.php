@@ -146,30 +146,119 @@ class OrderanController extends Controller
 
         return view('orderan.list_orderan2', $data);
     }
+    public function getPromoBank(Request $r)
+    {
+        $id_akun = $r->id_akun;
+        $ttl_sub = $r->ttl_sub;
+        $pembayaran = $r->total_pembayaran;
+        $whereDiskon = [
+            ['id_jenis_pembayaran', $id_akun],
+            ['min_order', '<=', $pembayaran],
+            ['max_order', '>=', $pembayaran],
+        ];
 
+        $diskon = DB::table('tb_diskon_bank_pembayaran')
+            ->where($whereDiskon)
+            ->first();
+        if ($diskon) {
+            $persentase_diskon = $diskon->persen_diskon / 100;
+            $maksimal_jumlah_diskon = $diskon->max_diskon_rp;
+
+            // Menghitung jumlah diskon
+            $jumlah_diskon = min($pembayaran * $persentase_diskon, $maksimal_jumlah_diskon);
+
+            // Mengurangkan jumlah diskon dari total pesanan
+            $total_pesanan_setelah_diskon = $pembayaran - $jumlah_diskon;
+        } else {
+            $jumlah_diskon = 0;
+            $total_pesanan_setelah_diskon = $ttl_sub;
+        }
+        return json_encode([
+            'jumlah_diskon' => $jumlah_diskon,
+            'persentase_diskon' => $diskon->persen_diskon,
+            'ttl_setelah_diskon' => $total_pesanan_setelah_diskon,
+        ]);
+    }
     public function save_transaksi(Request $request)
     {
-        $no_order = $request->no_order;
-        $id_order = $request->id_order;
-        $id_harga = $request->id_harga;
-        $qty = $request->qty;
-        $qty_majo = $request->qty_majo;
-        $id_pembelian = $request->id_pembelian;
-        $total_majo = $request->total_majo;
-        $harga = $request->harga;
-        $id_meja = $request->id_meja;
-        $kode_dp = $request->kode_dp;
-        $id_distribusi = $request->id_distribusi;
-        $lokasi = $request->session()->get('id_lokasi');
-        $voucher = $request->voucher;
-        $disc = $request->disc;
-        $dis = DB::table('tb_distribusi')->where('id_distribusi', $id_distribusi)->first();
-        $kode = substr($dis->nm_distribusi, 0, 2);
+        DB::beginTransaction();
+        try {
+
+            $no_order = $request->no_order;
+            $id_order = $request->id_order;
+            $id_harga = $request->id_harga;
+            $qty = $request->qty;
+            $qty_majo = $request->qty_majo;
+            $id_pembelian = $request->id_pembelian;
+            $total_majo = $request->total_majo;
+            $harga = $request->harga;
+            $id_meja = $request->id_meja;
+            $kode_dp = $request->kode_dp;
+            $id_distribusi = $request->id_distribusi;
+            $lokasi = $request->session()->get('id_lokasi');
+            $voucher = $request->voucher;
+            $disc = $request->disc;
+
+            // Memperoleh data distribusi
+            $dis = DB::table('tb_distribusi')->where('id_distribusi', $id_distribusi)->first();
+            $kode = substr($dis->nm_distribusi, 0, 2);
+
+            // Membangun nomor invoice
+            $kd = $this->generateInvoiceNumber($lokasi, $id_distribusi);
+            $no_invoice = date('ymd') . $kd;
+            $hasil = $this->buildInvoiceNumber($lokasi, $kode, $no_invoice);
+
+            // Membuat Invoice2
+            $data = [
+                'no_invoice' => $hasil,
+                'tanggal' => now()->format('Y-m-d'),
+            ];
+            Invoice2::create($data);
+
+            // Memproses data order
+            $this->processOrderData($id_order, $no_order, $hasil, $id_harga, $qty, $harga, $lokasi, $id_distribusi, $id_meja);
+
+            // Memproses data pembelian
+            $this->processPembelianData($id_pembelian, $qty_majo, $hasil, $request->total_dibayar, $total_majo, $lokasi, $id_distribusi);
+
+            // Memproses pembayaran
+            $this->processPayments($request->id_akun, $request->pembayaran, $request->sub, $request->nm_pengirim, $request->diskonPromo, $lokasi, $hasil);
+
+            // Memproses data transaksi
+            $this->processTransactionData($request, $lokasi, $hasil);
+
+            // Menandai penggunaan voucher dan DP
+            $this->markVoucherAsUsed($request->kd_voucher);
+            $this->markDPAsUsed($request->id_dp);
+            $this->markCttDriver($no_order,$id_distribusi,$hasil);
+
+            // Jika tidak ada kesalahan, Anda dapat melakukan commit secara manual
+            DB::commit();
+
+            return json_encode([
+                'nota' => $hasil,
+                'code' => 'berhasil',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return json_encode([
+                'nota' => $hasil,
+                'code' => 'error',
+            ]);
+        }
+    }
+
+    // function save transaksi
+    // Fungsi untuk menghasilkan nomor invoice
+    function generateInvoiceNumber($lokasi, $id_distribusi)
+    {
+        $kd = '';
         $q = DB::select(
             DB::raw("SELECT MAX(RIGHT(a.no_order2,4)) AS kd_max FROM tb_order2 AS a
-        WHERE DATE(a.tgl)=CURDATE() AND a.id_lokasi = '$lokasi' AND a.id_distribusi = '$id_distribusi'"),
+        WHERE DATE(a.tgl) = CURDATE() AND a.id_lokasi = '$lokasi' AND a.id_distribusi = '$id_distribusi'")
         );
-        $kd = '';
+
         if (count($q) > 0) {
             foreach ($q as $k) {
                 $tmp = ((int) $k->kd_max) + 1;
@@ -178,41 +267,33 @@ class OrderanController extends Controller
         } else {
             $kd = '0001';
         }
-        date_default_timezone_set('Asia/Makassar');
-        $no_invoice = date('ymd') . $kd;
 
-        $dis = DB::table('tb_distribusi')
-            ->where('id_distribusi', $id_distribusi)
-            ->first();
-        $kode = substr($dis->nm_distribusi, 0, 2);
+        return $kd;
+    }
+
+    // Fungsi untuk membangun nomor invoice
+    function buildInvoiceNumber($lokasi, $kode, $no_invoice)
+    {
         if ($lokasi == '1') {
-            $hasil = "T$kode-$no_invoice";
+            return "T$kode-$no_invoice";
         } else {
-            $hasil = "S$kode-$no_invoice";
+            return "S$kode-$no_invoice";
         }
-        $data = [
-            'no_invoice' => $hasil,
-            'tanggal' => date('Y-m-d'),
-        ];
+    }
 
-        
-        Invoice2::create($data);
-
-        for ($x = 0; $x < sizeof($id_order); $x++) {
-            if ($qty[$x] == '' || $qty[$x] == '0') {
-            } else {
-                // $ada = Order2::where([
-                //     ['id_order1' => $id_order[$x]],
-                //     ['created_at' => date('Y-m-d H:i:s')]
-                // ]);
+    // Fungsi untuk memproses data order
+    function processOrderData($id_order, $no_order, $hasil, $id_harga, $qty, $harga, $lokasi, $id_distribusi, $id_meja)
+    {
+        foreach ($id_order as $x => $order) {
+            if ($qty[$x] != '' && $qty[$x] != '0') {
                 $data = [
-                    'id_order1' => $id_order[$x],
+                    'id_order1' => $order,
                     'no_order' => $no_order,
                     'no_order2' => $hasil,
                     'id_harga' => $id_harga[$x],
                     'qty' => $qty[$x],
                     'harga' => $harga[$x],
-                    'tgl' => date('Y-m-d'),
+                    'tgl' => now()->format('Y-m-d'),
                     'id_lokasi' => $lokasi,
                     'admin' => Auth::user()->nama,
                     'id_distribusi' => $id_distribusi,
@@ -221,28 +302,27 @@ class OrderanController extends Controller
                 Order2::create($data);
             }
         }
-        if(empty($id_pembelian)) {
-            
-        } else {
-            for ($x = 0; $x < sizeof($id_pembelian); $x++) {
-                if ($qty_majo[$x] == '' || $qty_majo[$x] == '0') {
-                } else {
+    }
+
+    // Fungsi untuk memproses data pembelian
+    function processPembelianData($id_pembelian, $qty_majo, $hasil, $total_dibayar, $total_majo, $lokasi, $id_distribusi)
+    {
+        if (!empty($id_pembelian)) {
+            foreach ($id_pembelian as $x => $pembelian) {
+                if ($qty_majo[$x] != '' && $qty_majo[$x] != '0') {
                     $data = [
                         'bayar' => 'Y',
                         'no_nota2' => $hasil
                     ];
-                    Pembelian::where('id_pembelian', $request->id_pembelian[$x])->update($data);
+                    Pembelian::where('id_pembelian', $pembelian)->update($data);
                 }
             }
-            if($request->total_dibayar < $total_majo) {
-
-            } else {
+            if ($total_dibayar >= $total_majo) {
                 $data6 = [
-                    'bayar' => $request->total_dibayar < 1 ? 0 : $total_majo,
+                    'bayar' => $total_dibayar < 1 ? 0 : $total_majo,
                     'no_nota' => $hasil,
-                    'total' => $request->total_dibayar < 1 ? 0 : $total_majo,
-                    'tgl_jam' => date('Y-m-d'),
-                    'tgl_input' => date('Y-m-d H:i:s'),
+                    'total' => $total_dibayar < 1 ? 0 : $total_majo,
+                    'tgl_jam' => now()->format('Y-m-d H:i:s'),
                     'admin' => Auth::user()->nama,
                     'lokasi' => $lokasi,
                     'id_distribusi' => $id_distribusi
@@ -250,22 +330,44 @@ class OrderanController extends Controller
                 DB::table('tb_invoice')->insert($data6);
             }
         }
+    }
 
+    // Fungsi untuk memproses pembayaran
+    function processPayments($id_akun, $pembayaran, $ttl_sub, $nm_pengirim, $diskonPromo, $lokasi, $hasil)
+    {
+        foreach ($id_akun as $i => $id_akunBayar) {
+            if ($pembayaran[$i] != 0) {
+                $jumlah_diskon = 0;
+                $ttl_sub = $ttl_sub; // Anda mungkin ingin menghitung total ini terlebih dahulu
+                $data = [
+                    'id_akun_pembayaran' => $id_akunBayar,
+                    'no_nota' => $hasil,
+                    'nominal' => $pembayaran[$i],
+                    'pengirim' => $nm_pengirim[$i],
+                    'diskon_bank' => $diskonPromo ?? 0,
+                    'tgl' => now()->format('Y-m-d'),
+                    'id_lokasi' => $lokasi,
+                    'tgl_waktu' => now()
+                ];
+                DB::table('pembayaran')->insert($data);
+            }
+        }
+    }
+
+    // Fungsi untuk memproses data transaksi
+    function processTransactionData($request, $lokasi, $hasil)
+    {
         $data = [
-            'tgl_transaksi' => date('Y-m-d'),
+            'tgl_transaksi' => now()->format('Y-m-d'),
             'no_order' => $hasil,
             'voucher' => ($request->voucher == '' ? 0 : $request->voucher),
             'discount' => $request->discount == '' ? 0 : $request->discount,
             'dp' => ($request->dp == '' ? 0 : $request->dp),
             'gosen' => $request->gosen,
+            'diskon_bank' => $request->diskonPromo ?? 0,
             'round' => $request->round,
             'total_orderan' => $request->sub,
             'total_bayar' => $request->total_dibayar,
-            // 'cash' => $request->cash,
-            // 'd_bca' => $request->d_bca,
-            // 'k_bca' => $request->k_bca,
-            // 'd_mandiri' => $request->d_mandiri,
-            // 'k_mandiri' => $request->k_mandiri,
             'admin' => Auth::user()->nama,
             'id_lokasi' => $lokasi,
             'ongkir' => $request->ongkir,
@@ -274,37 +376,29 @@ class OrderanController extends Controller
             'kembalian' => $request->kembalian1,
         ];
         DB::table('tb_transaksi')->insert($data);
+    }
 
-        for ($i = 0; $i < count($request->id_akun); $i++) {
-
-            if ($request->pembayaran[$i] == 0) {
-                # code...
-            } else {
-
-                $data = [
-                    'id_akun_pembayaran' => $request->id_akun[$i],
-                    'no_nota' => $hasil,
-                    'nominal' => $request->pembayaran[$i],
-                    'pengirim' => $request->nm_pengirim[$i],
-                    'tgl' => date('Y-m-d'),
-                    'id_lokasi' => $lokasi,
-                    'tgl_waktu' => now()
-                ];
-                DB::table('pembayaran')->insert($data);
-            }
-        }
-
+    // Fungsi untuk menandai voucher sebagai sudah digunakan
+    function markVoucherAsUsed($kd_voucher)
+    {
         $data2 = [
             'terpakai' => 'sudah',
             'status' => 'off'
         ];
+        Voucher::where('kode', $kd_voucher)->update($data2);
+    }
 
-        Voucher::where('kode', $request->kd_voucher)->update($data2);
+    // Fungsi untuk menandai DP sebagai sudah digunakan
+    function markDPAsUsed($id_dp)
+    {
         $data3 = [
             'status' => '1'
         ];
-        Dp::where('id_dp', $request->id_dp)->update($data3);
+        Dp::where('id_dp', $id_dp)->update($data3);
+    }
 
+    function markCttDriver($no_order,$id_distribusi,$hasil)
+    {
         $order = DB::table('tb_order')->select('pengantar')->where('no_order', $no_order)->groupBy('no_order')->first();
         $ongkir = DB::table('tb_ongkir')->select('rupiah')->where('id_ongkir', '1')->first();
         if ($id_distribusi == '3') {
@@ -317,357 +411,8 @@ class OrderanController extends Controller
             ];
             Ctt_driver::create($data4);
         }
-        $ttl = $request->total_dibayar;
-        $sub = $request->sub + $request->total_majo;
-        $tax = $request->tax;
-        $okir = $request->ongkir;
-        $service = $request->service;
-        $cash = $request->cash;
-        $d_bca = $request->d_bca;
-        $k_bca = $request->k_bca;
-        $d_mandiri = $request->d_mandiri;
-        $k_mandiri = $request->k_mandiri;
-        $byrTotal = $cash + $d_bca + $k_bca + $d_mandiri + $k_mandiri;
-        $kembalian = $byrTotal - $ttl;
-        $dp = $request->dp;
-        $tagal = date('Y-m-d');
-        $month = date('m', strtotime($tagal));
-        $year = date('Y', strtotime($tagal));
-
-        $debca = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Bank BCA']])->first();
-        $krbca = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Piutang BCA']])->first();
-        $dmandiri = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Bank Mandiri']])->first();
-        $kamndiri = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Piutang Mandiri']])->first();
-        $kas = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Kas']])->first();
-        $pjl = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Penjualan']])->first();
-        $pll = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Pendapatan di Luar Usaha / lain - lain']])->first();
-        $ho = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Hutang Ongkir']])->first();
-        $hs = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Hutang Service Charge 7%']])->first();
-        $pd = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Pb1 Pajak Daerah 10%']])->first();
-        $pdd = Akun::where([['id_lokasi', $lokasi], ['nm_akun', 'Pendapatan dibayar dimuka']])->first();
-        
-        
-        if($dp > 0) {
-            $kode_akun = Jurnal::where('id_akun', $pdd->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-            $pdd = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $pdd->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $pdd->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $dp,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => $kode_dp,
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($pdd);
-
-            if($request->kembalian1 > 0) {
-                $kode_akun = Jurnal::where('id_akun',$kas->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-    
-                if ($kode_akun == 0) {
-                    $kode_akun = 1;
-                } else {
-                    $kode_akun += 1;
-                }
-                
-                $csh = [
-                    'id_buku' => 1,
-                    'id_lokasi' => $lokasi,
-                    'id_akun' =>$kas->id_akun,
-                    'kd_gabungan' => $hasil,
-                    'no_nota' =>$kas->kd_akun . date('Y-m') . '-' . $kode_akun,
-                    'debit' => 0,
-                    'kredit' => $request->kembalian1,
-                    'tgl' => date('Y-m-d'),
-                    'ket' => 'Kembalian Dp ' . $kode_dp,
-                    'admin' => Auth::user()->nama,
-                ];
-                Jurnal::create($csh);
-                $totKembali = $disc > 0 ? $sub * (100 - $disc) / 100 - $voucher : $sub - $voucher;
-                if($totKembali < 0) {
-
-                } else {
-                    $pjlc = [
-                        'id_buku' => 1,
-                        'id_lokasi' => $lokasi,
-                        'id_akun' => $pjl->id_akun,
-                        'kd_gabungan' => $hasil,
-                        'no_nota' => $pjl->kd_akun . date('Y-m') . '-' . $kode_akun,
-                        'debit' => 0,
-                        'kredit' => $totKembali < 0 ? 0 : $totKembali,
-                        'tgl' => date('Y-m-d'),
-                        'ket' => 'penjualan',
-                        'admin' => Auth::user()->nama,
-                    ];
-                    Jurnal::create($pjlc);
-        
-                    $pdpll = [
-                        'id_buku' => 1,
-                        'id_lokasi' => $lokasi,
-                        'id_akun' => $pll->id_akun,
-                        'kd_gabungan' => $hasil,
-                        'no_nota' => $pll->kd_akun . date('Y-m') . '-' . $kode_akun,
-                        'debit' => 0,
-                        'kredit' => $request->round,
-                        'tgl' => date('Y-m-d'),
-                        'ket' => 'penjualan',
-                        'admin' => Auth::user()->nama,
-                    ];
-                    Jurnal::create($pdpll);
-        
-                    if($okir != 0) {
-                        $hutong = [
-                            'id_buku' => 1,
-                            'id_lokasi' => $lokasi,
-                            'id_akun' => $ho->id_akun,
-                            'kd_gabungan' => $hasil,
-                            'no_nota' => $ho->kd_akun . date('Y-m') . '-' . $kode_akun,
-                            'debit' => 0,
-                            'kredit' => $okir,
-                            'tgl' => date('Y-m-d'),
-                            'ket' => 'penjualan',
-                            'admin' => Auth::user()->nama,
-                        ];
-                        Jurnal::create($hutong);
-                    }
-                    
-        
-                    $hsc = [
-                        'id_buku' => 1,
-                        'id_lokasi' => $lokasi,
-                        'id_akun' => $hs->id_akun,
-                        'kd_gabungan' => $hasil,
-                        'no_nota' => $hs->kd_akun . date('Y-m') . '-' . $kode_akun,
-                        'debit' => 0,
-                        'kredit' => $service,
-                        'tgl' => date('Y-m-d'),
-                        'ket' => 'penjualan',
-                        'admin' => Auth::user()->nama,
-                    ];
-                    Jurnal::create($hsc);
-        
-                    $ppd = [
-                        'id_buku' => 1,
-                        'id_lokasi' => $lokasi,
-                        'id_akun' => $pd->id_akun,
-                        'kd_gabungan' => $hasil,
-                        'no_nota' => $pd->kd_akun . date('Y-m') . '-' . $kode_akun,
-                        'debit' => 0,
-                        'kredit' => $tax,
-                        'tgl' => date('Y-m-d'),
-                        'ket' => 'penjualan',
-                        'admin' => Auth::user()->nama,
-                    ];
-                    Jurnal::create($ppd);
-                }
-            }
-
-        }
-
-        if($d_bca) {
-            $kode_akun = Jurnal::where('id_akun', $debca->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-          
-            $dbca = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $debca->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $debca->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $d_bca <= $ttl ? $d_bca : $d_bca - $kembalian,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($dbca);
-        }
-        if($k_bca) {
-            $kode_akun = Jurnal::where('id_akun',$krbca->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-            
-            $kbca = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' =>$krbca->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' =>$krbca->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $k_bca <= $ttl ? $k_bca : $k_bca - $kembalian,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($kbca);
-        }
-        if($d_mandiri) {
-            $kode_akun = Jurnal::where('id_akun', $dmandiri->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-           
-            $dman = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $dmandiri->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $dmandiri->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $d_mandiri <= $ttl ? $d_mandiri : $d_mandiri - $kembalian,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($dman);
-        }
-        if($k_mandiri) {
-            $kode_akun = Jurnal::where('id_akun', $kamndiri->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-       
-            $kman = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $kamndiri->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $kamndiri->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $k_mandiri <= $ttl ? $k_mandiri : $k_mandiri - $kembalian,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($kman);
-        }
-        if($cash) {
-            $kode_akun = Jurnal::where('id_akun',$kas->id_akun)->whereMonth('tgl', $month)->whereYear('tgl', $year)->count();
-
-            if ($kode_akun == 0) {
-                $kode_akun = 1;
-            } else {
-                $kode_akun += 1;
-            }
-          
-            $csh = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' =>$kas->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' =>$kas->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => $cash - $kembalian,
-                'kredit' => 0,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($csh);
-        }
-        if(!$cash && $d_bca || !$cash && $k_bca || !$cash && $d_mandiri || !$cash && $k_mandiri || $cash && $d_bca && $k_bca && $d_mandiri && $k_mandiri || $cash) 
-        {
-            
-            $subTotal = $disc > 0 ? $sub * (100 - $disc) / 100 - $voucher : $sub - $voucher;
-            $pjlc = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $pjl->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $pjl->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => 0,
-                'kredit' => $subTotal < 0 ? 0 : $subTotal,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($pjlc);
-
-            $pdpll = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $pll->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $pll->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => 0,
-                'kredit' => $request->round,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($pdpll);
-
-            if($okir != 0) {
-                $hutong = [
-                    'id_buku' => 1,
-                    'id_lokasi' => $lokasi,
-                    'id_akun' => $ho->id_akun,
-                    'kd_gabungan' => $hasil,
-                    'no_nota' => $ho->kd_akun . date('Y-m') . '-' . $kode_akun,
-                    'debit' => 0,
-                    'kredit' => $okir,
-                    'tgl' => date('Y-m-d'),
-                    'ket' => 'penjualan',
-                    'admin' => Auth::user()->nama,
-                ];
-                Jurnal::create($hutong);
-            }
-            
-
-            $hsc = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $hs->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $hs->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => 0,
-                'kredit' => $service,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($hsc);
-
-            $ppd = [
-                'id_buku' => 1,
-                'id_lokasi' => $lokasi,
-                'id_akun' => $pd->id_akun,
-                'kd_gabungan' => $hasil,
-                'no_nota' => $pd->kd_akun . date('Y-m') . '-' . $kode_akun,
-                'debit' => 0,
-                'kredit' => $tax,
-                'tgl' => date('Y-m-d'),
-                'ket' => 'penjualan',
-                'admin' => Auth::user()->nama,
-            ];
-            Jurnal::create($ppd);
-        }
-
-        return $hasil;
-
-        // return redirect()->route('pembayaran2', ['no' => $hasil]);
     }
+    // ------------------------
 
     public function pembayaran2(Request $request)
     {

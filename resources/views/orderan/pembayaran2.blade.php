@@ -245,6 +245,16 @@
                                                 ({{$transaksi->discount}}%)</td>
                                             <td></td>
                                         </tr>
+                                        <tr>
+                                            <td colspan="2">Promo Bank</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>-</td>
+                                            <td width="20%">
+                                                {{number_format($transaksi->diskon_bank,0)}}
+                                            </td>
+                                            <td></td>
+                                        </tr>
 
                                         <tr>
                                             <td colspan="2">Dp</td>
@@ -279,7 +289,7 @@
                                             </td>
                                             <td style="background-color: #C8E1F3;font-weight: bold;"></td>
                                         </tr>
-                                        <?php if ($transaksi->cash == '0') : ?>
+                                        {{-- <?php if ($transaksi->cash == '0') : ?>
                                         <?php else : ?>
                                         <tr>
                                             <td colspan="2">Cash</td>
@@ -343,7 +353,7 @@
                                             </td>
                                             <td></td>
                                         </tr>
-                                        <?php endif ?>
+                                        <?php endif ?> --}}
 
                                         @php
                                                 $total_p = 0;
