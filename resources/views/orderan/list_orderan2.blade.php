@@ -294,7 +294,7 @@
                         value="0" name="pembayaranPromo[]" class="form-control pembayaranPromo">
                 </td>
                 <td style="white-space: nowrap;">
-                    <a class="btn btn-info btn-sm cek_promo"><i class="fas fa-sync-alt"></i> cek</a>
+                    <a class="btn btn-info btn-sm cek_promo" id_akun="{{ $a->id_akun_pembayaran }}"><i class="fas fa-sync-alt"></i> cek</a>
                     <a class="btn btn-danger btn-sm batal_promo"><i class="fas fa-undo-alt"></i> batal</a>
                 </td>
                 {{-- <td class="diskonPromo"></td> --}}

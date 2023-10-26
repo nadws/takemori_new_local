@@ -62,7 +62,40 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $(document).on('keyup', '.pembayaranPromo', function() {
+            // $(document).on('keyup', '.pembayaranPromo', function() {
+            //     var total_pembayaran = 0;
+            //     $(".pembayaranPromo").each(function() {
+            //         total_pembayaran += parseFloat($(this).val());
+            //     });
+
+            //     var id_akun = $(this).attr('id_akun')
+            //     var ttl_sub = $('#ttl_hrg').val();
+            //     var ttl_majo = $('#ttl_majo').val();
+            //     var sub_total = parseFloat(ttl_sub) + parseFloat(ttl_majo)
+            //     $.ajax({
+            //         type: "GET",
+            //         url: "{{ route('getPromoBank') }}",
+            //         data: {
+            //             id_akun: id_akun,
+            //             ttl_sub: sub_total,
+            //             total_pembayaran: total_pembayaran,
+            //         },
+            //         dataType: "json",
+            //         success: function(r) {
+            //             console.log(
+            //                 `diskon = ${r.jumlah_diskon}  bayar = ${r.ttl_setelah_diskon}`)
+            //             var jumlah_diskon = r.jumlah_diskon.toFixed(0).replace(
+            //                 /(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+            //             $('.diskonPromo').val(`${jumlah_diskon} (${r.persentase_diskon}%)`)
+            //             var diskon = parseFloat(r.jumlah_diskon)
+            //             $('.diskonPromoInt').val(diskon)
+
+            //             // $("#ttl_hrg").val(r.);
+            //         }
+            //     });
+            // })
+
+            $(document).on('click', '.cek_promo', function() {
                 var total_pembayaran = 0;
                 $(".pembayaranPromo").each(function() {
                     total_pembayaran += parseFloat($(this).val());
@@ -90,13 +123,7 @@
                         var diskon = parseFloat(r.jumlah_diskon)
                         $('.diskonPromoInt').val(diskon)
 
-                        // $("#ttl_hrg").val(r.);
-                    }
-                });
-            })
-
-            $(document).on('click', '.cek_promo', function() {
-                $('.pembayaranTr').addClass('d-none');
+                        $('.pembayaranTr').addClass('d-none');
                 var diskonPromo = $('.diskonPromoInt').val()
                 var ttl_sub = $('#ttl_hrg2').val();
                 var ttl_majo = $('#ttl_majo').val();
@@ -123,6 +150,8 @@
 
                 var round = parseFloat(grand_totalRound) - parseFloat(grand_total)
                 $('.round').val(round);
+                    }
+                });
 
             })
             $(document).on('click', '.batal_promo', function() {
