@@ -115,41 +115,40 @@
                     },
                     dataType: "json",
                     success: function(r) {
-                        console.log(
-                            `diskon = ${r.jumlah_diskon}  bayar = ${r.ttl_setelah_diskon}`)
-                        var jumlah_diskon = r.jumlah_diskon.toFixed(0).replace(
-                            /(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        console.log(`diskon = ${r.jumlah_diskon}  bayar = ${r.ttl_setelah_diskon}`)
+                        var jumlah_diskon = r.jumlah_diskon.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         $('.diskonPromo').val(`${jumlah_diskon} (${r.persentase_diskon}%)`)
                         var diskon = parseFloat(r.jumlah_diskon)
                         $('.diskonPromoInt').val(diskon)
 
                         $('.pembayaranTr').addClass('d-none');
-                var diskonPromo = $('.diskonPromoInt').val()
-                var ttl_sub = $('#ttl_hrg2').val();
-                var ttl_majo = $('#ttl_majo').val();
-                var diskonVoucher = $('#rupiah').val();
-                var sub_total = parseFloat(ttl_sub) + parseFloat(ttl_majo) - parseFloat(diskonVoucher)
-                var ttl_promoRound = parseFloat(sub_total) - parseFloat(diskonPromo)
-                // var ttl_promoRound = Math.ceil(ttl_promo / 1000) * 1000;
-                $('#diskonPromoInfo').val(ttl_promoRound);
+                        var diskonPromo = $('.diskonPromoInt').val()
+                        var ttl_sub = $('#ttl_hrg2').val();
+                        var ttl_majo = $('#ttl_majo').val();
+                        var diskonVoucher = $('#rupiah').val();
+                        var sub_total = parseFloat(ttl_sub) + parseFloat(ttl_majo) - parseFloat(
+                            diskonVoucher)
+                        var ttl_promoRound = parseFloat(sub_total) - parseFloat(diskonPromo)
+                        // var ttl_promoRound = Math.ceil(ttl_promo / 1000) * 1000;
+                        $('#diskonPromoInfo').val(ttl_promoRound);
 
-                // hitung
-                var service = ttl_promoRound * 0.07
-                var tax = (ttl_promoRound + service) * 0.1
-                
-                $('.servis').html(service);
-                $('.tax').html(tax);
-                $('.servis1').val(service);
-                $('.tax1').val(tax);
+                        // hitung
+                        var service = ttl_promoRound * 0.07
+                        var tax = (ttl_promoRound + service) * 0.1
 
-                var grand_total = ttl_promoRound + service + tax
-                var grand_totalRound = Math.ceil(grand_total / 1000) * 1000;
-                $('#total1').val(grand_totalRound);
-                $('#totalTetap').val(grand_totalRound);
-                $('.ttl_ttp_sebelum').text(grand_totalRound);
+                        $('.servis').html(service);
+                        $('.tax').html(tax);
+                        $('.servis1').val(service);
+                        $('.tax1').val(tax);
 
-                var round = parseFloat(grand_totalRound) - parseFloat(grand_total)
-                $('.round').val(round);
+                        var grand_total = ttl_promoRound + service + tax
+                        var grand_totalRound = Math.ceil(grand_total / 1000) * 1000;
+                        $('#total1').val(grand_totalRound);
+                        $('#totalTetap').val(grand_totalRound);
+                        $('.ttl_ttp_sebelum').text(grand_totalRound);
+
+                        var round = parseFloat(grand_totalRound) - parseFloat(grand_total)
+                        $('.round').val(round);
                     }
                 });
 
@@ -293,13 +292,15 @@
                         type: "POST",
                         url: "{{ route('save_transaksi') }}",
                         data: $(".form_save").serialize(),
-                        dataType:'json',
+                        dataType: 'json',
                         success: function(r) {
-                            if(r.code === 'error') {
+                            if (r.code === 'error') {
                                 alert('Ada yang error')
-                                document.location.href = "{{ route('list_orderan') }}?no="+r.nota
+                                document.location.href = "{{ route('list_orderan') }}?no=" + r
+                                    .nota
                             } else {
-                                document.location.href = "{{ route('pembayaran2') }}?no=" + r.nota
+                                document.location.href = "{{ route('pembayaran2') }}?no=" + r
+                                    .nota
                             }
                         }
                     });
@@ -662,7 +663,7 @@
                                         var total = parseInt($("#total1").val());
                                         var bayar = total_pembayaran;
 
-    
+
                                         if (total <= bayar) {
                                             $('#btn_bayar').removeAttr('disabled');
                                         } else {
