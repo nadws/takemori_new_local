@@ -126,6 +126,8 @@ class DownloadController extends Controller
 
     public function discount(Request $request)
     {
+        $id_lokasi = session()->get('id_lokasi') == 1 ? 'tkm' : 'sdb';
+        
         $discount = Http::get("https://ptagafood.com/api/diskon_sdb");
         $dt_discount = json_decode($discount, TRUE);
         Discount::truncate();
@@ -142,6 +144,26 @@ class DownloadController extends Controller
             ];
             Discount::create($data);
         }
+        $discount = Http::get("https://ptagafood.com/api/diskon_peritem");
+        $dt_discount = json_decode($discount, TRUE);
+        DB::table('tb_discount_peritem')->truncate();
+        foreach ($dt_discount[$id_lokasi] as $v) {
+            $data = [
+                'id_diskon' => $v['id_diskon'],
+                'id_lokasi' => $v['id_lokasi'],
+                'id_menu' => $v['id_menu'],
+                'id_distribusi' => $v['id_distribusi'],
+                'jenis' => $v['jenis'],
+                'jumlah' => $v['jumlah'],
+                'tgl_dari' => $v['tgl_dari'],
+                'tgl_sampai' => $v['tgl_sampai'],
+                'ket' => $v['ket'],
+                'status' => $v['status'],
+                'admin' => $v['admin'],
+            ];
+            DB::table('tb_discount_peritem')->insert($data);
+        }
+
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
     }
     public function karyawan(Request $request)

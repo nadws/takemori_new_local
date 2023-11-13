@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Discount;
 use App\Models\Harga;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Orderan;
 use App\Models\Transaksi;
 use App\Models\Pembelian;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -40,8 +42,8 @@ class MejaController extends Controller
                     ->where('akv', 'on')
                     ->where('lokasi', $lokasi)
                     ->get(),
-                    'tgl' => $tgl,
-                    'loc' => $lokasi
+                'tgl' => $tgl,
+                'loc' => $lokasi
             ];
 
             return view('meja.meja', $data);
@@ -195,8 +197,16 @@ class MejaController extends Controller
         $dp = DB::table('tb_harga')
             ->where('id_harga', $id_harga)
             ->first();
-
-        echo "$dp->harga";
+        $potongan = Discount::diskonPeritem($dp->id_menu, $dp->id_distribusi);
+        $potonganJumlah = $potongan['potongan'];
+        $potonganJenis = $potongan['jenis'];
+        $pricePotongan = 0;
+        if ($potonganJumlah > 0) {
+            $pricePotongan = $potonganJenis == 'rp' ? $dp->harga - $potonganJumlah : ($dp->harga * $potonganJumlah) / 100;
+        } else {
+            $pricePotongan = $dp->harga;
+        }
+        echo $pricePotongan;
     }
     public function save_pesanan(Request $request)
     {
@@ -211,17 +221,26 @@ class MejaController extends Controller
         $admin = $request->admin;
         $warna = $request->warna;
 
-
         for ($i = 0; $i < sizeof($id_harga); $i++) {
             if ($qty[$i] == '' || $qty[$i] == '0') {
             } else {
                 for ($q = 1; $q <= $qty[$i]; $q++) {
                     $dt_harga = Harga::where('id_harga', $id_harga[$i])->first();
+                    $potongan = Discount::diskonPeritem($dt_harga->id_menu, $dt_harga->id_distribusi);
+                    $potonganJumlah = $potongan['potongan'];
+                    $potonganJenis = $potongan['jenis'];
+                    $pricePotongan = 0;
+                    if ($potonganJumlah > 0) {
+                        $pricePotongan = $potonganJenis == 'rp' ? $dt_harga->harga - $potonganJumlah : ($dt_harga->harga * $potonganJumlah) / 100;
+                    } else {
+                        $pricePotongan = $dt_harga->harga;
+                    }
+
                     $data = [
                         'no_order' => $kd_order,
                         'id_harga' => $id_harga[$i],
                         'qty' => 1,
-                        'harga' => $dt_harga->harga,
+                        'harga' => $pricePotongan,
                         'request' => $req[$i],
                         'orang' => $orang,
                         'id_meja' => $meja,
@@ -440,11 +459,11 @@ class MejaController extends Controller
                 ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
                 ->where('a.no_order', $id)
                 ->where('c.tipe', 'food')
-                ->wherein('c.id_kategori', ['14','15','17'])
+                ->wherein('c.id_kategori', ['14', '15', '17'])
                 ->where('a.no_checker', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
-                'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+            'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
                 FROM tb_pembelian AS a
                 LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
                 WHERE a.no_nota= '$id'
@@ -454,7 +473,7 @@ class MejaController extends Controller
                 LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
                 WHERE a.no_nota= '$id'
                 "),
-                
+
             'majo_ttl' => DB::selectOne("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  sum(a.jumlah) as sum_qty, a.harga, a.total
                         FROM tb_pembelian AS a
                         LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
@@ -468,7 +487,7 @@ class MejaController extends Controller
                         GROUP BY a.no_order ")
         ];
 
-        
+
         return view('meja.checker', $data);
     }
     public function checker_tamu(Request $request)
@@ -539,7 +558,7 @@ class MejaController extends Controller
                 ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
                 ->where('a.no_order', $id)
                 ->where('c.tipe', 'food')
-                ->whereNotIn('c.id_kategori' ,['14','15','17','18'])
+                ->whereNotIn('c.id_kategori', ['14', '15', '17', '18'])
                 ->where('a.checker_tamu', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
@@ -568,22 +587,22 @@ class MejaController extends Controller
                 ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
                 ->where('a.no_order', $id)
                 ->where('c.tipe', 'food')
-                ->wherein('c.id_kategori', ['14','15','17'])
+                ->wherein('c.id_kategori', ['14', '15', '17'])
                 ->where('a.checker_tamu', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
-                'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
+            'majo' => DB::select("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  a.jumlah, a.harga, a.total
                 FROM tb_pembelian AS a
                 LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
                 WHERE a.no_nota= '$id'
                 "),
-                'majo_ttl' => DB::selectOne("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  sum(a.jumlah) as sum_qty, a.harga, a.total
+            'majo_ttl' => DB::selectOne("SELECT a.tanggal, a.no_nota, a.nm_karyawan, b.nm_produk, a.id_karyawan,  sum(a.jumlah) as sum_qty, a.harga, a.total
                 FROM tb_pembelian AS a
                 LEFT JOIN tb_produk AS b ON b.id_produk = a.id_produk
                 WHERE a.no_nota= '$id'
                 group by a.no_nota
                 "),
-                'meja' => DB::selectOne("SELECT a.warna, b.nm_meja
+            'meja' => DB::selectOne("SELECT a.warna, b.nm_meja
                 FROM tb_order AS a
                 LEFT JOIN tb_meja AS b ON b.id_meja = a.id_meja
                 WHERE a.no_order = '$id'
@@ -664,7 +683,7 @@ class MejaController extends Controller
                 ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
                 ->where('a.no_order', $id)
                 ->where('c.tipe', 'food')
-                ->whereNotIn('c.id_kategori' ,['14','15','17','18'])
+                ->whereNotIn('c.id_kategori', ['14', '15', '17', '18'])
                 ->where('a.copy_checker_tamu', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
@@ -693,11 +712,11 @@ class MejaController extends Controller
                 ->leftJoin('view_menu as c', 'c.id_harga', '=', 'a.id_harga')
                 ->where('a.no_order', $id)
                 ->where('c.tipe', 'food')
-                ->wherein('c.id_kategori', ['14','15','17'])
+                ->wherein('c.id_kategori', ['14', '15', '17'])
                 ->where('a.copy_checker_tamu', 'T')
                 ->groupBy('a.no_order')
                 ->first(),
-                
+
         ];
 
         $data1 = [
@@ -854,7 +873,7 @@ class MejaController extends Controller
         $admin =  Auth::user()->nama;
         $lokasi = $r->session()->get('id_lokasi');
 
-       
+
 
 
         $d_produk = DB::table('tb_produk')->where('id_produk', $id_harga_majo)->where('id_lokasi', $lokasi)->first();
@@ -924,5 +943,4 @@ class MejaController extends Controller
             DB::table('komisi')->insert($data_komisi);
         }
     }
-
 }

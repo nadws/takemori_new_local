@@ -39,7 +39,7 @@
                     foreach (Cart::content() as $c):
                     if ($c->options->program == 'resto') {
                     $ttl += $c->qty;
-                    $sub_total += $c->qty * $c->price;
+                    $sub_total += $c->qty * ($c->price);
                     } else {
                     $sub_majo += $c->qty * $c->price;
                     }
