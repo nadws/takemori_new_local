@@ -275,9 +275,10 @@ Route::get('/print_cek_invoice', [LaporanController::class, 'print_cek_invoice']
 Route::get('/excel_cek_invoice', [LaporanController::class, 'excel_cek_invoice'])->name('excel_cek_invoice');
 
 Route::get('/head', [HeadController::class, 'index'])->name('head');
-Route::get('/head2', [HeadController::class, 'head2'])->name('head2');
 
 Route::get('/meja', [MejaController::class, 'index'])->name('meja');
+Route::get('/meja', [MejaController::class, 'index'])->name('meja');
+Route::get('/load_waitress_selesai', [MejaController::class, 'load_waitress_selesai'])->name('load_waitress_selesai');
 
 // Order -----------------------------------------------
 Route::get('/get_order', [OrderController::class, 'get'])->name('get_order');
