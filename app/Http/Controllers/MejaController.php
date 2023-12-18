@@ -56,22 +56,20 @@ class MejaController extends Controller
         $tgl = date('Y-m-d');
         $lokasi = $request->session()->get('id_lokasi');
         $distribusi = DB::select(
-            DB::raw("SELECT a.*, c.jumlah
+            "SELECT a.*, c.jumlah
             FROM tb_distribusi AS a 
             LEFT JOIN (SELECT b.id_distribusi , COUNT(b.id_order) AS jumlah
             FROM tb_order AS b
             WHERE b.selesai = 'diantar' and b.id_lokasi = '$lokasi' AND void = 0
             GROUP BY b.id_distribusi
-            ) c ON c.id_distribusi = a.id_distribusi"),
+            ) c ON c.id_distribusi = a.id_distribusi",
         );
-        $orderan = DB::select(
-            DB::raw(
+        $orderan = DB::selectOne(
                 "SELECT 
             COUNT(id_order) as jml_order 
             FROM tb_order as a 
             WHERE a.id_lokasi = '$lokasi' AND a.id_distribusi = '$id' AND selesai = 'diantar' AND void = 0 
-            group by a.id_distribusi",
-            ),
+            group by a.id_distribusi"
         );
         $data = [
             'title' => 'Menu | Buku Tugas',
@@ -96,25 +94,18 @@ class MejaController extends Controller
         }
 
         if ($id_distribusi == '3') {
-            $waitress = DB::select(
-                DB::raw(
-                    "SELECT a.* , b.nama FROM tb_absen as a left join tb_karyawan as b on a.id_karyawan = b.id_karyawan
-                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'",
-                ),
+            $waitress = DB::select("SELECT a.* , b.nama FROM tb_absen as a left join tb_karyawan as b on a.id_karyawan = b.id_karyawan
+                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'"
             );
         } else {
             $waitress = DB::select(
-                DB::raw(
                     "SELECT a.* , b.nama FROM tb_absen as a left join tb_karyawan as b on a.id_karyawan = b.id_karyawan
-                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'",
-                ),
+                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'"
             );
         }
 
-        $meja = DB::select(
-            DB::raw(
-                "SELECT a.id_meja, c.nm_meja, a.warna, a.no_order, RIGHT(a.no_order,2) AS kd, b.nm_distribusi,a.selesai,
-                a.pengantar,  SUM(a.qty) AS qty1 ,  e.qty2 , min(a.print) as prn , min(a.copy_print) as c_prn, min(a.checker_tamu) as t_prn, MIN(a.j_mulai) as jam_datang, timestampdiff(MINUTE, MIN(a.j_mulai), MAX(a.wait)) as total_jam_pesan
+        $meja = DB::select("SELECT a.id_meja, c.nm_meja, a.warna, a.no_order, RIGHT(a.no_order,2) AS kd, b.nm_distribusi,a.selesai,
+        a.pengantar,  SUM(a.qty) AS qty1 ,  e.qty2 , min(a.print) as prn , min(a.copy_print) as c_prn, min(a.checker_tamu) as t_prn, MIN(a.j_mulai) as jam_datang, timestampdiff(MINUTE, MIN(a.j_mulai), MAX(a.wait)) as total_jam_pesan
         FROM tb_order AS a
         left join tb_meja as c on c.id_meja = a.id_meja
         LEFT JOIN tb_distribusi AS b ON b.id_distribusi = a.id_distribusi
@@ -123,8 +114,7 @@ class MejaController extends Controller
         GROUP BY d.no_order
         ) AS e ON e.no_order = a.no_order
         WHERE a.aktif = '1' and  a.id_lokasi = '$loc' and a.id_distribusi = '$id_distribusi' AND a.void = 0
-        group by a.no_order order by a.id_distribusi , a.id_meja  ASC",
-            ),
+        group by a.no_order order by a.id_distribusi , a.id_meja  ASC"      
         );
 
         $data = [

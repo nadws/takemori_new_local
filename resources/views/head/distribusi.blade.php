@@ -2,28 +2,19 @@
     <?php 
     foreach ($distribusi as $d) : ?>
     <li class="nav-item">
-        <?php if ($id == $d->id_distribusi) : ?>
-        <?php if (empty($d->jumlah)) : ?>
-        <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>"
-            class="nav-link active badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
-        <?php else : ?>
-        <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>" data-badge="<?= $d->jumlah ?>"
-            class="nav-link active badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
-        <?php endif ?>
-        <?php else : ?>
-        <?php if (empty($d->jumlah)) : ?>
-        <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>"
-            class="nav-link badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
-        <?php else : ?>
-        <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>" data-badge="<?= $d->jumlah ?>"
-            class="nav-link badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
-        <?php endif ?>
-        <?php endif ?>
+        @if (empty($d->jumlah))
+            <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>"
+                class="nav-link {{ $id == $d->id_distribusi ? 'active' : '' }}  badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
+        @else
+            <a href="<?= route('head', ['id' => $d->id_distribusi]) ?>" data-badge="<?= $d->jumlah ?>"
+                class="nav-link {{ $id == $d->id_distribusi ? 'active' : '' }} badge-notif"><strong><?= $d->nm_distribusi ?></strong></a>
+        @endif
     </li>
     <?php endforeach ?>
     <div class="float-right mr-5">
         <li nav-item>
-            <button id="viewJam" data-toggle="modal" data-target="#summary" class="btn btn-sm btn-info mr-2">View 1 jam terakhir</button>
+            <button id="viewJam" data-toggle="modal" data-target="#summary" class="btn btn-sm btn-info mr-2">View 1
+                jam terakhir</button>
             <i class="fa fa-search"></i>
         </li>
         <li>

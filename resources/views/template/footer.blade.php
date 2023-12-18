@@ -32,8 +32,7 @@
 <script src="{{ asset('public/assets') }}/plugins/select2/js/select2.full.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{ asset('public/assets') }}/dist/js/demo.js"></script>
-<script src="{{ asset('public/assets') }}/css1/bootstrap-switch-button.min.js">
-</script>
+<script src="{{ asset('public/assets') }}/css1/bootstrap-switch-button.min.js"></script>
 
 <script>
     function doubleClicked(element) {
@@ -62,7 +61,7 @@
 
     $(function() {
         $(".select").select2()
-        
+
         $("#example1").DataTable({
 
             "lengthChange": false,

@@ -352,6 +352,7 @@ Route::get('/head_cancel', [HeadController::class, 'head_cancel'])->name('head_c
 Route::get('/distribusi3', [HeadController::class, 'distribusi'])->name('distribusi3');
 Route::get('/cancel', [HeadController::class, 'cancel'])->name('cancel');
 Route::get('/view1jam', [HeadController::class, 'view1jam'])->name('view1jam');
+Route::get('/load_menu_selesai', [HeadController::class, 'load_menu_selesai'])->name('load_menu_selesai');
 
 Route::post('/selesai_check', [HeadController::class, 'selesai_check'])->name('selesai_check');
 
@@ -439,7 +440,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/loadSoondobu', [viewKomServerController::class, 'loadSoondobu'])->name('loadSoondobu');
     Route::get('/apiKom', [viewKomServerController::class, 'apiKom'])->name('apiKom');
     Route::get('/kpi', [KpiController::class, 'index'])->name('kpi');
-    
+
     Route::get('/subKategori', [KpiController::class, 'subKategori'])->name('subKategori');
     Route::post('/saveDendaKpi', [KpiController::class, 'saveDendaKpi'])->name('saveDendaKpi');
     Route::get('/kategoriKpi', [KpiController::class, 'kategoriKpi'])->name('kategoriKpi');

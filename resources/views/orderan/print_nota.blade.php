@@ -331,7 +331,7 @@
         <tr>
             <td style="text-align: left;" width="6%"></td>
             <td style="font-size: 20px;">
-                {{-- <?php if (empty($transaksi->cash)) : ?>
+                <?php if (empty($transaksi->cash)) : ?>
                 <?php else : ?>
                 Cash <div style="margin-top: 5px;"></div>
                 <?php endif ?>
@@ -350,14 +350,14 @@
                 <?php if (empty($transaksi->k_mandiri)) : ?>
                 <?php else : ?>
                 Kredit MANDIRI <div style="margin-top: 5px;"></div>
-                <?php endif ?> --}}
+                <?php endif ?>
 
                 @foreach ($pembayaran as $p)
                     {{ $p->nm_akun }} {{ $p->nm_klasifikasi }} <div style="margin-top: 5px;"></div> 
                 @endforeach
             </td>
             <td width="22%" style="font-size: 20px;">
-                {{-- <?php if (empty($transaksi->cash)) : ?>
+                <?php if (empty($transaksi->cash)) : ?>
                 <?php else : ?>
                 <?= number_format($transaksi->cash) ?>
                 <div style="margin-top: 5px;"></div>
@@ -381,7 +381,7 @@
                 <?php else : ?>
                 <?= number_format($transaksi->k_mandiri) ?>
                 <div style="margin-top: 5px;"></div>
-                <?php endif ?> --}}
+                <?php endif ?>
                 @php
                     $total_p = 0;
                 @endphp

@@ -527,7 +527,7 @@
 
             }
             setInterval(function() {
-                load_distribusi2();
+                // load_distribusi2();
                 load_tugas();
             }, 10000);
 

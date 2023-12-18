@@ -189,7 +189,7 @@
                 </b>
                 <?php endif ?>
             </td>
-            <td>{{ date('H:i',strtotime($m->created_at)) }}</td>
+            <td>{{ date('H:i',strtotime($m->created_at)) }} </td>
         </tr>
         @endforeach
         @foreach ($majo_hide as $m)
@@ -258,7 +258,7 @@
             <td><b style="color:red;">{{ number_format($m->selisih, 0) }} </b></td>
             <?php endif ?>
             <?php endif ?>
-            <td>{{ date('H:i',strtotime($m->created_at)) }}</td>
+            <td>{{ date('H:i',strtotime($m->created_at)) }} </td>
         </tr>
 
         <?php endforeach ?>
