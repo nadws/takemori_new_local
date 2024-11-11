@@ -127,7 +127,7 @@ class DownloadController extends Controller
     public function discount(Request $request)
     {
         $id_lokasi = session()->get('id_lokasi') == 1 ? 'tkm' : 'sdb';
-        
+
         $discount = Http::get("https://ptagafood.com/api/diskon_sdb");
         $dt_discount = json_decode($discount, TRUE);
         Discount::truncate();
@@ -275,7 +275,7 @@ class DownloadController extends Controller
 
         DB::table('tb_stok_produk')->truncate();
 
-         foreach ($tb_majo['stok_masuk_sdb'] as $v) {
+        foreach ($tb_majo['stok_masuk_sdb'] as $v) {
             $data = [
                 'id_stok_produk' => $v['id_stok_produk'],
                 'kode_stok_produk' => $v['kode_stok_produk'],
@@ -299,7 +299,6 @@ class DownloadController extends Controller
         }
 
         return redirect()->route('sukses2')->with('sukses', 'Sukses');
-
     }
     public function menu(Request $request)
     {
@@ -313,7 +312,7 @@ class DownloadController extends Controller
         DB::table('tb_produk')->truncate();
         DB::table('tb_kategori_majo')->truncate();
         DB::table('tb_satuan_majo')->truncate();
-        
+
         foreach ($dt_menu['menu'] as $v) {
             $kode_server = $v['id_menu'];
             $v_local = DB::selectOne("SELECT * from tb_menu as a where a.id_menu = '$kode_server'");
@@ -394,14 +393,14 @@ class DownloadController extends Controller
             DB::table('tb_produk')->insert($data);
         }
 
-        foreach($dt_menu['kategori_majo'] as $v) {
+        foreach ($dt_menu['kategori_majo'] as $v) {
             $data = [
                 'id_kategori' => $v['id_kategori'],
                 'nm_kategori' => $v['nm_kategori'],
             ];
             DB::table('tb_kategori_majo')->insert($data);
         }
-        foreach($dt_menu['satuan_majo'] as $v) {
+        foreach ($dt_menu['satuan_majo'] as $v) {
             $data = [
                 'id_satuan' => $v['id_satuan'],
                 'satuan' => $v['satuan'],

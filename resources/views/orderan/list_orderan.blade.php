@@ -115,8 +115,10 @@
                     },
                     dataType: "json",
                     success: function(r) {
-                        console.log(`diskon = ${r.jumlah_diskon}  bayar = ${r.ttl_setelah_diskon}`)
-                        var jumlah_diskon = Number(r.jumlah_diskon).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        console.log(
+                            `diskon = ${r.jumlah_diskon}  bayar = ${r.ttl_setelah_diskon}`)
+                        var jumlah_diskon = Number(r.jumlah_diskon).toFixed(0).replace(
+                            /(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         $('.diskonPromo').val(`${jumlah_diskon} (${r.persentase_diskon}%)`)
                         var diskon = parseFloat(r.jumlah_diskon)
                         $('.diskonPromoInt').val(diskon)

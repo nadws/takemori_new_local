@@ -5,18 +5,18 @@
             style=" background:#197dab; color: #787878;">
             <div class="container">
                 @php
-                if (Session::get('id_lokasi') == 1) {
-                $gambar = 'Takemori_new.jpg';
-                $h5 = 'TAKEMORI';
-                } elseif (Session::get('id_lokasi') == 2) {
-                $gambar = 'soondobu.jpg';
-                $h5 = 'SOONDOBU';
-                } else {
-                $gambar = 'user copy.png';
-                $h5 = 'ADMINISTRATOR';
-                }
+                    if (Session::get('id_lokasi') == 1) {
+                        $gambar = 'Takemori_new.jpg';
+                        $h5 = 'TAKEMORI';
+                    } elseif (Session::get('id_lokasi') == 2) {
+                        $gambar = 'soondobu.jpg';
+                        $h5 = 'SOONDOBU';
+                    } else {
+                        $gambar = 'user copy.png';
+                        $h5 = 'ADMINISTRATOR';
+                    }
                 @endphp
-                <img src="{{ asset('public/assets') }}/pages/login/img/{{ $gambar }}" alt="AdminLTE Logo"
+                <img src="{{ asset('assets') }}/pages/login/img/{{ $gambar }}" alt="AdminLTE Logo"
                     class="brand-image img-circle elevation-3" style="opacity: .8"> &nbsp;
                 <h5 style="font-weight: bold; color:white">{{ $h5 }}</h5>
                 <button class="order-1 navbar-toggler first-button" type="button" data-toggle="collapse"

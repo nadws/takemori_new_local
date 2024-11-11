@@ -16,27 +16,35 @@
         <div class="container-fluid">
             <div class="row mb-2 ">
                 <?php foreach ($order as $p) : ?>
-                    <?php $no = $p->no_order ?>
-                    <?php $dis = $p->id_distribusi ?>
+                <?php $no = $p->no_order; ?>
+                <?php $dis = $p->id_distribusi; ?>
                 <?php endforeach ?>
-                <?php $transaksi = $this->db->get_where('tb_transaksi', ['no_order' => $no])->row() ?>
+                <?php $transaksi = $this->db->get_where('tb_transaksi', ['no_order' => $no])->row(); ?>
                 <div class="col-sm-12">
                     <h4 class=" mb-6 float-left">
-                        DATA ORDERAN <span class="badge badge-primary "><?= word_limiter($no_meja->nm_distribusi, 1, '') ?> <?= substr($no_meja->no_order, -1, 1) ?></span>
+                        DATA ORDERAN <span
+                            class="badge badge-primary "><?= word_limiter($no_meja->nm_distribusi, 1, '') ?>
+                            <?= substr($no_meja->no_order, -1, 1) ?></span>
                     </h4>
                     <?php if (empty($transaksi)) : ?>
                     <?php else : ?>
-                        <a href="<?= base_url("orderan/clear/$no") ?>" class="btn btn-sm btn-info float-right "><i class="fas fa-hand-sparkles"></i> Clear up meja</a>
+                    <a href="<?= base_url("orderan/clear/$no") ?>" class="btn btn-sm btn-info float-right "><i
+                            class="fas fa-hand-sparkles"></i> Clear up meja</a>
                     <?php endif ?>
                     <?php if (empty($transaksi)) : ?>
-                        <a href="<?= base_url("Orderan/pembayaran?no=$no") ?>" id="btn_bayar" class="btn btn-sm  btn-info float-right mr-2"><i class="fas fa-dollar-sign"></i> Pembayaran</a>
+                    <a href="<?= base_url("Orderan/pembayaran?no=$no") ?>" id="btn_bayar"
+                        class="btn btn-sm  btn-info float-right mr-2"><i class="fas fa-dollar-sign"></i> Pembayaran</a>
                     <?php else : ?>
-                        <a href="<?= base_url("Orderan/pembayaran2?no=$no") ?>" class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-dollar-sign"></i> Paid</a>
+                    <a href="<?= base_url("Orderan/pembayaran2?no=$no") ?>"
+                        class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-dollar-sign"></i> Paid</a>
                     <?php endif ?>
 
-                    <a href="<?= base_url("orderan/bill/$no ") ?>" target="_blank" class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-print"></i> Bill</a>
-                    <a href="<?= base_url("orderan/checker/$no ") ?>" target="_blank" class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-print"></i> Checker</a>
-                    <a class="btn btn-sm btn-info float-right mr-2" data-toggle="modal" data-target="#pesan<?= $no ?>"><i class="fas fa-plus"></i> Pesanan</a>
+                    <a href="<?= base_url("orderan/bill/$no ") ?>" target="_blank"
+                        class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-print"></i> Bill</a>
+                    <a href="<?= base_url("orderan/checker/$no ") ?>" target="_blank"
+                        class="btn btn-sm btn-info float-right mr-2"><i class="fas fa-print"></i> Checker</a>
+                    <a class="btn btn-sm btn-info float-right mr-2" data-toggle="modal"
+                        data-target="#pesan<?= $no ?>"><i class="fas fa-plus"></i> Pesanan</a>
                 </div><!-- /.col -->
 
             </div><!-- /.row -->
@@ -62,9 +70,9 @@
                                         <th>Request</th>
                                         <th>Koki</th>
                                         <?php if ($dis == '3') : ?>
-                                            <th>Driver</th>
+                                        <th>Driver</th>
                                         <?php else : ?>
-                                            <th>Waitress</th>
+                                        <th>Waitress</th>
                                         <?php endif ?>
                                         <th>Time delay</th>
                                         <th>Status</th>
@@ -104,52 +112,57 @@
     }
 </style>
 <?php foreach ($order as $o) : ?>
-    <div class="modal fade" id="waitress<?= $o->id_order ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info">
-                    <h5 class="modal-title" id="exampleModalLabel">Pilih waitress</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <?php foreach ($waitress as $w) : ?>
-                            <div class="col-lg-2">
-                                <a data-dismiss="modal" aria-label="Close" class="btn btn-info wait" kd="<?= $o->id_order ?>" nm="<?= $w->nama ?>"><?= $w->nama ?></a>
-                            </div>
-                        <?php endforeach ?>
+<div class="modal fade" id="waitress<?= $o->id_order ?>" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title" id="exampleModalLabel">Pilih waitress</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <?php foreach ($waitress as $w) : ?>
+                    <div class="col-lg-2">
+                        <a data-dismiss="modal" aria-label="Close" class="btn btn-info wait" kd="<?= $o->id_order ?>"
+                            nm="<?= $w->nama ?>"><?= $w->nama ?></a>
                     </div>
+                    <?php endforeach ?>
                 </div>
             </div>
         </div>
     </div>
-    <?php $no = $o->no_order ?>
+</div>
+<?php $no = $o->no_order; ?>
 <?php endforeach ?>
 <?php foreach ($order as $o) : ?>
-    <div class="modal fade" id="driver<?= $o->id_order ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info">
-                    <h5 class="modal-title" id="exampleModalLabel">Pilih Driver</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <?php foreach ($driver as $w) : ?>
-                            <div class="col-lg-2">
-                                <a data-dismiss="modal" aria-label="Close" style="white-space: nowrap; font-size: 10px;" class="btn btn-info wait btn-block" kd="<?= $o->id_order ?>" nm="<?= $w->nama ?>"><?= $w->nama ?></a>
-                            </div>
-                        <?php endforeach ?>
+<div class="modal fade" id="driver<?= $o->id_order ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title" id="exampleModalLabel">Pilih Driver</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <?php foreach ($driver as $w) : ?>
+                    <div class="col-lg-2">
+                        <a data-dismiss="modal" aria-label="Close" style="white-space: nowrap; font-size: 10px;"
+                            class="btn btn-info wait btn-block" kd="<?= $o->id_order ?>"
+                            nm="<?= $w->nama ?>"><?= $w->nama ?></a>
                     </div>
+                    <?php endforeach ?>
                 </div>
             </div>
         </div>
     </div>
-    <?php $no = $o->no_order ?>
+</div>
+<?php $no = $o->no_order; ?>
 <?php endforeach ?>
 
 
@@ -159,7 +172,8 @@
 
     }
 </style>
-<div class="modal fade" id="pesan<?= $no ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="pesan<?= $no ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg-max" role="document">
         <div class="modal-content">
             <div class="modal-header bg-info">
@@ -175,7 +189,7 @@
                         <select name="" id="" class="form-control select2bs4">
                             <option value="">--Pilih Menu--</option>
                             <?php foreach ($tb_menu as $t) : ?>
-                                <option value=""><?= $t->nm_menu ?></option>
+                            <option value=""><?= $t->nm_menu ?></option>
                             <?php endforeach ?>
                         </select>
                     </div>
@@ -264,14 +278,14 @@
 
 <script>
     <?php if ($this->session->flashdata('success')) : ?>
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            icon: 'success',
-            title: '<?= $this->session->flashdata('success') ?>'
-        });
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        icon: 'success',
+        title: '<?= $this->session->flashdata('success') ?>'
+    });
     <?php endif; ?>
 </script>
 

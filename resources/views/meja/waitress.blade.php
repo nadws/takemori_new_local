@@ -1,4 +1,4 @@
-a<table class="table" width="100%">
+<table class="table" width="100%">
     <thead>
         <tr class="header">
             <th>Meja</th>

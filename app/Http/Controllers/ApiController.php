@@ -68,7 +68,7 @@ class ApiController extends Controller
 
             ]);
         }
-    
+
 
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_order', $data1);
 
@@ -79,7 +79,7 @@ class ApiController extends Controller
 
     public function tb_jurnal(Request $request)
     {
-        
+
         $data = Jurnal::where('import', 'T')->get();
 
         $id_jurnal = [];
@@ -202,7 +202,7 @@ class ApiController extends Controller
         foreach ($pembayaran as $t) {
             $id_pembayaran[] = $t->id_pembayaran;
             array_push($data_pembayaran, [
-                
+
                 'id_akun_pembayaran' => $t->id_akun_pembayaran,
                 'no_nota' => $t->no_nota,
                 'nominal' => $t->nominal,
@@ -216,9 +216,9 @@ class ApiController extends Controller
         $response = Http::acceptJson()->post('https://ptagafood.com/api/pembayaran', $data_pembayaran);
         DB::table('pembayaran')->whereIn('id_pembayaran', $id_pembayaran)->update(['import' => 'Y']);
         // end pembayaran baru
-        
+
         // tb produk majo
-        $tb_produk_majo = DB::table('tb_produk')->where([['id_lokasi' , 2]])->get();
+        $tb_produk_majo = DB::table('tb_produk')->where([['id_lokasi', 2]])->get();
         $id_produk_majo = [];
         $datap = [];
         foreach ($tb_produk_majo as $t) {
@@ -231,7 +231,7 @@ class ApiController extends Controller
         }
         // dd($datap);
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_produk_majo', $datap);
-        
+
 
 
         $tb_invoice = DB::table('tb_invoice')->where('import', 'T')->get();
@@ -254,9 +254,9 @@ class ApiController extends Controller
         // dd($datap);
         $response = Http::acceptJson()->post('https://ptagafood.com/api/tb_invoice_new', $data_invoice);
         DB::table('tb_invoice')->whereIn('id', $id_invoice)->update(['import' => 'Y']);
-     
+
         // tb pembelian majoo
-        
+
 
         // transaksi resto
         $tb_transaksi = Transaksi::where('import', 'T')->get();
