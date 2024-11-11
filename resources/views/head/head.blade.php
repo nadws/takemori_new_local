@@ -82,22 +82,31 @@
 @section('script')
     <script>
         $(document).ready(function() {
-
+            $(document).on('click', '.selesai_majo', function(event) {
+                var kode = $(this).attr('kode');
+                var no_order = $(this).attr('no_order');
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('meja_selesai_majo') }}",
+                    data: {
+                        kode: kode,
+                        '_token': "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            icon: 'success',
+                            title: 'Makanan telah selesai'
+                        });
+                        load_tugas();
+                    }
+                });
+            });
             load_tugas();
 
-            function loadView1Jam() {
-                $("#badan").load("{{ route('view1jam') }}", "data", function(response, status, request) {
-                    this; // dom element
-                    $('#tableJam').DataTable({
-                        "bSort": true,
-                        // "scrollX": true,
-                        "paging": true,
-                        "stateSave": true,
-                        "scrollCollapse": true
-                    });
-                });
-            }
-            loadView1Jam()
 
             function load_tugas() {
                 var id_distribusi = $("#id_distribusi").val();
@@ -113,224 +122,7 @@
                 });
 
             }
-
-            $(document).on('click', '.koki1', function(event) {
-                var kode = $(this).attr('kode');
-                var kry = $(this).attr('kry');
-                var id_meja = $(this).attr('id_meja');
-                var s = $("#searchHead").val();
-                var id_distribusi = $("#id_distribusi").val();
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('koki1') ?>",
-                    data: {
-                        kode: kode,
-                        kry: kry,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 1 berhasil ditambahkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-
-                    }
-                });
-            });
-
-
-            $(document).on('click', '.koki2', function(event) {
-                var kode = $(this).attr('kode');
-                var kry = $(this).attr('kry');
-                var s = $("#searchHead").val();
-                var id_meja = $(this).attr('id_meja');
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('koki2') ?>",
-                    data: {
-                        kode: kode,
-                        kry: kry,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 2 berhasil ditambahkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-
-                    }
-                });
-            });
-
-            $(document).on('click', '.koki3', function(event) {
-                var kode = $(this).attr('kode');
-                var kry = $(this).attr('kry');
-                var s = $("#searchHead").val();
-                var id_meja = $(this).attr('id_meja');
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('koki3') ?>",
-                    data: {
-                        kode: kode,
-                        kry: kry,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 3 berhasil ditambahkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-                    }
-                });
-            });
-
-            $(document).on('click', '.un_koki1', function(event) {
-                var kode = $(this).attr('kode');
-                var s = $("#searchHead").val();
-                var id_meja = $(this).attr('id_meja');
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('un_koki1') ?>",
-                    data: {
-                        kode: kode,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 1 dibatalkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-                    }
-                });
-            });
-            $(document).on('click', '.un_koki2', function(event) {
-                var kode = $(this).attr('kode');
-                var s = $("#searchHead").val();
-                var id_meja = $(this).attr('id_meja');
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('un_koki2') ?>",
-                    data: {
-                        kode: kode,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 2 dibatalkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-                    }
-                });
-            });
-            $(document).on('click', '.un_koki3', function(event) {
-                var kode = $(this).attr('kode');
-                var s = $("#searchHead").val();
-                var id_meja = $(this).attr('id_meja');
-                $.ajax({
-                    type: "POST",
-                    url: "<?= route('un_koki3') ?>",
-                    data: {
-                        kode: kode,
-                        '_token': "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            icon: 'success',
-                            title: 'Koki 3 dibatalkan'
-                        });
-
-                        $.ajax({
-                            method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
-                            dataType: "html",
-                            success: function(hasil) {
-                                $('.addmeja' + id_meja).html(hasil);
-                                $('.meja' + id_meja).remove();
-                                $('.meja' + id_meja).hide();
-                            }
-                        });
-                    }
-                });
-            });
+            
             $(document).on('click', '.selesai', function(event) {
                 var kode = $(this).attr('kode');
                 var s = $("#searchHead").val();
@@ -351,7 +143,10 @@
 
                         $.ajax({
                             method: "GET",
-                            url: "{{ route('head2') }}?id_meja=" + id_meja,
+                            url: "{{ route('head2') }}",
+                            data:{
+                                id_meja: id_meja
+                            },
                             dataType: "html",
                             success: function(hasil) {
                                 $('.addmeja' + id_meja).html(hasil);
@@ -396,25 +191,7 @@
                 });
             });
 
-            $(document).on('click', '.gagal', function(event) {
-                var s = $("#searchHead").val();
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    icon: 'error',
-                    title: 'Koki belum di pilih'
-                });
-                load_tugas();
-            });
-
-
-
-
             load_distribusi();
-
-
             function load_distribusi() {
                 var id_distribusi = $("#id_distribusi").val();
                 // var jumlah1 = $("#jumlah").val();
@@ -435,11 +212,16 @@
 
             $(document).on('click', '.muncul', function(event) {
                 var id_meja = $(this).attr('id_meja');
+                var no_order = $(this).attr('no_order');
                 $.ajax({
                     type: "get",
                     url: "{{ route('load_menu_selesai') }}",
                     data: {
-                        id_meja: id_meja
+                        id_meja: id_meja,
+                        no_order: no_order
+                    },
+                    beforeSend: function() {
+                        $('.load_menu_s' + id_meja).html('loading...');
                     },
                     success: function(r) {
                         $('.load_menu_s' + id_meja).html(r);

@@ -18,7 +18,7 @@
                 </td>
                 <td class="bg-info" style="vertical-align: middle;">
                     <a class="muncul muncul{{ $m->id_meja }} btn btn-primary btn-sm"
-                        id_meja="{{ $m->id_meja }}">View</a>
+                        id_meja="{{ $m->id_meja }}" no_order="{{ $m->no_order }}">View</a>
                     <a class="hilang hilang{{ $m->id_meja }} btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
                         style="display:none">View</a>
                 </td>
@@ -33,11 +33,14 @@
                 $menu = DB::select("SELECT b.nm_menu, c.nm_meja, c.id_meja,a.request,a.qty,a.selesai,a.id_order,a.j_mulai,f.ttlMenuSemua FROM tb_order AS a LEFT JOIN view_menu AS b ON b.id_harga = a.id_harga
                     LEFT JOIN (SELECT d.id_harga, COUNT(id_harga) as ttlMenuSemua FROM `tb_order` as d where d.id_lokasi = '$lokasi' and d.selesai = 'dimasak' and aktif = '1' and void = 0 GROUP BY d.id_harga) as f on b.id_harga = f.id_harga
                     LEFT JOIN tb_meja AS c ON c.id_meja = a.id_meja where a.id_lokasi = '$lokasi' and a.id_meja = '$m->id_meja' and a.selesai = 'dimasak' and aktif = '1' and void = 0 ORDER BY a.id_order");
-                $no = 1;
+
+                $majo = DB::select("SELECT a.*, c.nm_produk
+                        FROM tb_pembelian AS a
+                        LEFT JOIN tb_produk AS c ON c.id_produk = a.id_produk
+                        WHERE a.no_nota = '$m->no_order' AND a.lokasi = '$lokasi' and a.selesai = 'diantar'
+                        GROUP BY a.id_pembelian");
             @endphp
-            @php
-                $setMenit = DB::table('tb_menit')->where('id_lokasi', $lokasi)->first();
-            @endphp
+           
             <tr class="header">
     <tbody class="load_menu_s{{ $m->id_meja }}"></tbody>
     </tr>
@@ -75,6 +78,24 @@
                             {{ date('H:i', strtotime($m->j_selesai)) }}
                         </b></td>
                 @endif
+            </tr>
+        @endif
+    @endforeach
+    @foreach ($majo as $j)
+        @if ($j->nm_produk != '')
+            <tr class="header meja">
+               <td></td>
+                <td>
+                    {{ $j->nm_produk }}
+                </td>
+                <td></td>
+                <td>
+                    {{ $j->jumlah }}
+                </td>
+                <td>
+                    <a kode="{{ $j->id_pembelian }}" no_order="{{$m->no_order}}" class="btn btn-info btn-sm selesai_majo"><i
+                        class="fas fa-thumbs-up"></i></a>
+                </td>
             </tr>
         @endif
     @endforeach

@@ -30,4 +30,20 @@
         @endif
     </tr>
 @endforeach
+@foreach ($majo_hide as $m)
+    <tr>
+        <td></td>
+        <td style="text-transform: lowercase;">
+            {{ $m->nm_produk }} 
+        </td>
+        <td></td>
+        <td>{{ $m->jumlah }}</td>
+        <td colspan="2">
+            {{-- <a no_order="{{ $m->no_nota }}" class="btn btn-warning text-light btn-sm cancelMajo">
+                <i class="fas fa-times"></i>
+            </a> --}}
+        </td>
+    
+    </tr>
+@endforeach
 

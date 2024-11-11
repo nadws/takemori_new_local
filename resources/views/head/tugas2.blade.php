@@ -35,3 +35,14 @@
         @endif
     </tr>
 @endforeach
+@foreach ($majo_hide as $m)
+    <tr class="header">
+        <td></td>
+        <td style="white-space:nowrap;text-transform: lowercase;">
+            {{ $m->nm_produk }}
+        </td>
+        <td></td>
+        <td>{{ $m->jumlah }}</td>
+       
+    </tr>
+@endforeach
