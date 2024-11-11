@@ -357,8 +357,8 @@ class OrderController extends Controller
         $orang = $request->orang;
         $id_distribusi = $request->distribusi;
         $now = date('Y-m-d');
-        $warna =  $request->warna;
-        $admin =  $request->admin;
+        // $warna =  $request->warna;
+        // $admin =  $request->admin;
 
         if (empty($id_distribusi)) {
             $id_me = '1';
@@ -383,8 +383,8 @@ class OrderController extends Controller
                 ->where('id_distribusi', $id_distribusi)
                 ->first(),
             'orang' => $orang,
-            'warna' => $warna,
-            'admin' => $admin,
+            // 'warna' => $warna,
+            // 'admin' => $admin,
             'distribusi' => $id_distribusi,
         ];
 
@@ -441,8 +441,8 @@ class OrderController extends Controller
         $orang = $request->orang;
         $lokasi = $request->session()->get('id_lokasi');
         $pesan = $request->req;
-        $warna = $request->warna;
-        $admin = $request->admin;
+        // $warna = $request->warna;
+        // $admin = $request->admin;
 
         $date = date('Y-m-d');
         $last_meja = DB::selectOne("SELECT *
@@ -473,12 +473,12 @@ class OrderController extends Controller
                             'selesai' => 'dimasak',
                             'id_lokasi' => $lokasi,
                             'tgl' => date('Y-m-d'),
-                            'admin' => $admin,
+                            'admin' => Auth::user()->nama,
                             'j_mulai' => date('Y-m-d H:i:s'),
                             'aktif' => '1',
                             'ongkir' => $ongkir,
                             'orang' => $orang,
-                            'warna' => $warna
+                            'warna' => 'hijau'
                         ];
                         Orderan::create($data2);
                     }
@@ -495,12 +495,12 @@ class OrderController extends Controller
                         'selesai' => 'dimasak',
                         'id_lokasi' => $lokasi,
                         'tgl' => date('Y-m-d'),
-                        'admin' => $admin,
+                        'admin' => Auth::user()->nama,
                         'j_mulai' => date('Y-m-d H:i:s'),
                         'aktif' => '1',
                         'ongkir' => $ongkir,
                         'orang' => $orang,
-                        'warna' => $warna
+                        'warna' => 'hijau'
                     ];
                     Orderan::create($data2);
                 }
@@ -529,7 +529,7 @@ class OrderController extends Controller
                     'total' => $c->price * $c->qty,
                     'tanggal' => date('Y-m-d'),
                     'tgl_input' => date('Y-m-d H:i:s'),
-                    'admin' => $admin,
+                    'admin' => Auth::user()->nama,
                     'lokasi' => $lokasi,
                     'no_meja' => $last_meja->id_meja,
                     'jml_komisi' => $d_produk->komisi
@@ -557,7 +557,7 @@ class OrderController extends Controller
                     'j_mulai' => date('Y-m-d H:i:s'),
                     'aktif' => '1',
                     'orang' => $orang,
-                    'warna' => $warna
+                    'warna' => ''
                 ];
                 Orderan::create($data2);
 

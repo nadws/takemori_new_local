@@ -56,25 +56,22 @@ class MejaController extends Controller
         $tgl = date('Y-m-d');
         $lokasi = $request->session()->get('id_lokasi');
         $distribusi = DB::select(
-            "SELECT a.*, c.jumlah
+            "SELECT a.*
             FROM tb_distribusi AS a 
-            LEFT JOIN (SELECT b.id_distribusi , COUNT(b.id_order) AS jumlah
-            FROM tb_order AS b
-            WHERE b.selesai = 'diantar' and b.id_lokasi = '$lokasi' AND void = 0
-            GROUP BY b.id_distribusi
-            ) c ON c.id_distribusi = a.id_distribusi",
+            
+            ",
         );
-        $orderan = DB::selectOne(
-            "SELECT 
-            COUNT(id_order) as jml_order 
-            FROM tb_order as a 
-            WHERE a.id_lokasi = '$lokasi' AND a.id_distribusi = '$id' AND selesai = 'diantar' AND void = 0 
-            group by a.id_distribusi"
-        );
+        // $orderan = DB::selectOne(
+        //     "SELECT 
+        //     COUNT(id_order) as jml_order 
+        //     FROM tb_order as a 
+        //     WHERE a.id_lokasi = '$lokasi' AND a.id_distribusi = '$id' AND selesai = 'diantar' AND void = 0 
+        //     group by a.id_distribusi"
+        // );
         $data = [
             'title' => 'Menu | Buku Tugas',
             'distribusi' => $distribusi,
-            'orderan' => $orderan,
+            // 'orderan' => $orderan,
             'id' => $id,
         ];
 
@@ -295,9 +292,7 @@ class MejaController extends Controller
         DB::table('tb_order')->where('no_order', $id_order)->update($data);
     }
 
-    public function check_pembayaran(Request $request)
-    {
-    }
+    public function check_pembayaran(Request $request) {}
 
     public function bill(Request $request)
     {

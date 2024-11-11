@@ -6,12 +6,8 @@
             <th>Request</th>
             <th>Qty</th>
             <th>Status</th>
-            <?php foreach ($waitress as $k) : ?>
-            <th>
-                <?= $k->nama ?>
-            </th>
-            <?php endforeach ?>
-            <th>Masak / Antar </th>
+
+            {{-- <th>Masak / Antar </th> --}}
             <th>Jam Order </th>
         </tr>
     </thead>
@@ -27,9 +23,6 @@
             <tr class="header">
                 <td class="bg-info" width="8%" style="white-space: nowrap;">
                     <?= $m->nm_meja ?>
-                    <span style="font-size: 10px; font-weight: bold">
-                        <dt>({{ $m->warna }})</dt>
-                    </span>
                 </td>
                 <td class="bg-info" style="vertical-align: middle;">
                     <a class="muncul muncul{{ $m->id_meja }}  btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
@@ -119,9 +112,7 @@
                 <td class="bg-info"></td>
                 <td class="bg-info"></td>
                 <td class="bg-info"></td>
-                <?php foreach ($waitress as $k) : ?>
-                <td class="bg-info" style="vertical-align: middle;">{{ $k->nama }}</td>
-                <?php endforeach ?>
+
                 {{-- disini --}}
                 <td colspan="50" class="bg-info">
                     <?= number_format($m->total_jam_pesan, 0) ?> Menit
@@ -143,55 +134,21 @@
             <tr>
     <tbody class="load_menu_s{{ $m->id_meja }}"></tbody>
     </tr>
-    <?php foreach ($menu as $m) : if($m->nm_menu == ''){continue;} ?>
-    <tr class="header">
-        <td></td>
-        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_menu }}</td>
-        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->request }}</td>
-        <td> {{ $m->qty }}</td>
-        <?php if ($m->selesai == 'diantar') : ?>
-        <?php if (!empty($m->pengantar)) : ?>
-        <td><a kode="{{ $m->id_order }}" class="btn btn-info btn-sm selesai"><i class="fas fa-thumbs-up"></i></a>
-        </td>
-        <?php else : ?>
-        <td><a kode="{{ $m->id_order }}" class="btn btn-info btn-sm gagal"><i class="fas fa-thumbs-up"></i></a>
-        </td>
-        <?php endif ?>
-        <?php foreach ($waitress as $k) : ?>
-        <?php if (!empty($m->pengantar)) : ?>
-        <?php if ($m->pengantar == $k->nama) : ?>
-        <td><a kode="{{ $m->id_order }}" class="btn btn-warning btn-sm un_waitress"><i
-                    class="fas fa-user-check"></i></a></td>
-        <?php else : ?>
-        <td></td>
-        <?php endif ?>
-
-        <?php else : ?>
-        <td><a kode="{{ $m->id_order }}" id_distribusi="{{ $id }}" kry="{{ $k->nama }}"
-                class="btn btn-sm btn-success waitress"><i class="fas fa-check"></i></a></td>
-        <?php endif ?>
-        <?php endforeach ?>
-
-        <td style="font-weight: bold;">
-            <?= date('H:i', strtotime($m->j_mulai)) ?>
-        </td>
-        <?php else : ?>
-        <td>
-            <?= $m->selesai ?>
-        </td>
-        <?php foreach ($waitress as $k) : ?>
-        <td></td>
-        <?php endforeach ?>
-        <?php if ($m->selisih > '40') : ?>
-        <td><b style="color:blue;">{{ number_format($m->selisih, 0) }}</b></td>
-        <?php else : ?>
-        <td><b style="color:red;">{{ number_format($m->selisih, 0) }} </b></td>
-        <?php endif ?>
-        <?php endif ?>
-        <td>{{ date('H:i', strtotime($m->created_at)) }} </td>
-    </tr>
-
-    <?php endforeach ?>
+    @foreach ($menu as $m)
+        @if ($m->nm_menu != '')
+            <tr class="header">
+                <td></td>
+                <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_menu }}</td>
+                <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->request }}</td>
+                <td> {{ $m->qty }}</td>
+                <td>
+                    {{ $m->selesai }}
+                </td>
+                <td>{{ date('H:i', strtotime($m->created_at)) }} </td>
+            </tr>
+        @else
+        @endif
+    @endforeach
     <?php foreach ($majo as $m) :
                 if ($m->nm_produk == '') {
                 continue;

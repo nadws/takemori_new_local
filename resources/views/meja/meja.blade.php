@@ -167,8 +167,8 @@
 
 
         /* .buying-selling.active .radio-dot:after {
-                                                                    background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
-                                                                } */
+                                                                                    background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+                                                                                } */
 
         /* dot */
         .buying-selling:hover .radio-dot:after {
@@ -176,9 +176,9 @@
         }
 
         /* .buying-selling.active:hover .radio-dot:after {
-                                                                    background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+                                                                                    background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
 
-                                                                } */
+                                                                                } */
 
         @media (max-width: 400px) {
 
@@ -526,10 +526,10 @@
                 });
 
             }
-            setInterval(function() {
-                // load_distribusi2();
-                load_tugas();
-            }, 10000);
+            // setInterval(function() {
+            //     // load_distribusi2();
+            //     load_tugas();
+            // }, 10000);
 
             load_tugas();
 

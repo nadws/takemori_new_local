@@ -1,14 +1,8 @@
 <ul class="nav nav-pills mb-3 custom-scrollbar-css" id="pills-tab" role="tablist">
     <?php foreach ($distribusi as $d) : ?>
     <li class="nav-item">
-        <?php if (empty($d->jumlah)) : ?>
-            <a href="{{ route('meja', ['id' => $d->id_distribusi]) }}" class="nav-link {{$id == $d->id_distribusi ? 'active' : '' }} badge-notif"><strong>{{
-                    $d->nm_distribusi }}</strong></a>
-            <?php else : ?>
-            <a href="{{ route('meja', ['id' => $d->id_distribusi]) }}" data-badge="{{ $d->jumlah }}"
-                class="nav-link {{$id == $d->id_distribusi ? 'active' : '' }} badge-notif"><strong>{{ $d->nm_distribusi
-                    }}</strong></a>
-            <?php endif ?>
+        <a href="{{ route('meja', ['id' => $d->id_distribusi]) }}"
+            class="nav-link {{ $id == $d->id_distribusi ? 'active' : '' }} badge-notif"><strong>{{ $d->nm_distribusi }}</strong></a>
     </li>
 
     <?php 

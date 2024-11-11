@@ -276,7 +276,7 @@ class HeadController extends Controller
         date_default_timezone_set('Asia/Makassar');
         $id_order = $request->kode;
         $data = array(
-            'selesai'   => 'diantar',
+            'selesai'   => 'selesai',
             'j_selesai' => date('Y-m-d H:i:s'),
             'wait' => date('Y-m-d H:i:s'),
         );
