@@ -90,35 +90,25 @@ class MejaController extends Controller
             $id_distribusi = $request->dis;
         }
 
-        if ($id_distribusi == '3') {
-            $waitress = DB::select(
-                "SELECT a.* , b.nama FROM tb_absen as a left join tb_karyawan as b on a.id_karyawan = b.id_karyawan
-                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'"
-            );
-        } else {
-            $waitress = DB::select(
-                "SELECT a.* , b.nama FROM tb_absen as a left join tb_karyawan as b on a.id_karyawan = b.id_karyawan
-                     WHERE a.tgl = '$tgl' AND b.id_status = 2 and a.id_lokasi = '$loc'"
-            );
-        }
+
 
         $meja = DB::select(
-            "SELECT a.id_meja, c.nm_meja, a.warna, a.no_order, RIGHT(a.no_order,2) AS kd, b.nm_distribusi,a.selesai,
-        a.pengantar,  SUM(a.qty) AS qty1 ,  e.qty2 , min(a.print) as prn , min(a.copy_print) as c_prn, min(a.checker_tamu) as t_prn, MIN(a.j_mulai) as jam_datang, timestampdiff(MINUTE, MIN(a.j_mulai), MAX(a.wait)) as total_jam_pesan
-        FROM tb_order AS a
-        left join tb_meja as c on c.id_meja = a.id_meja
-        LEFT JOIN tb_distribusi AS b ON b.id_distribusi = a.id_distribusi
-        LEFT JOIN ( 
-        SELECT d.no_order , SUM(d.qty) qty2 FROM tb_order2 AS d 
-        GROUP BY d.no_order
-        ) AS e ON e.no_order = a.no_order
-        WHERE a.aktif = '1' and  a.id_lokasi = '$loc' and a.id_distribusi = '$id_distribusi' AND a.void = 0
-        group by a.no_order order by a.id_distribusi , a.id_meja  ASC"
+            "SELECT a.id_meja, c.nm_meja, a.warna, a.no_order, RIGHT(a.no_order,2) AS kd,a.selesai,
+            a.pengantar,  SUM(a.qty) AS qty1 ,  e.qty2 , min(a.print) as prn , min(a.copy_print) as c_prn, min(a.checker_tamu) as t_prn
+            FROM tb_order AS a
+                left join tb_meja as c on c.id_meja = a.id_meja
+                
+                LEFT JOIN ( 
+                    SELECT d.no_order , SUM(d.qty) qty2 
+                    FROM tb_order2 AS d 
+                    GROUP BY d.no_order
+                ) AS e ON e.no_order = a.no_order
+            WHERE a.aktif = '1' and  a.id_lokasi = '$loc' and a.id_distribusi = '$id_distribusi' AND a.void = 0
+            group by a.no_order order by a.id_distribusi , a.id_meja  ASC;"
         );
 
         $data = [
             'meja' => $meja,
-            'waitress' => $waitress,
             'loc' => $loc,
             'id' => $id_distribusi,
         ];
@@ -865,7 +855,7 @@ class MejaController extends Controller
 
         $d_produk = DB::table('tb_produk')->where('id_produk', $id_harga_majo)->where('id_lokasi', $lokasi)->first();
         $data = [
-            'id_karyawan'  => $nota[0],
+            'id_karyawan'  => 1,
             'id_produk' => $id_harga_majo,
             'no_nota' => $kd_order,
             'jumlah' => $qty_majo,
@@ -912,23 +902,23 @@ class MejaController extends Controller
 
         DB::table('tb_produk')->where('id_produk', $id_harga_majo)->update($stok_baru);
 
-        if ($hrg_majo > 0) {
-            $subharga = $qty_majo * $hrg_majo;
-        } else {
-            $subharga = 0;
-        }
-        $komisi1 = $subharga * $d_produk->komisi / 100;
-        $komisi = $komisi1 / count($nota);
-        foreach ($nota as $id_karyawan) {
-            $data_komisi = [
-                'id_pembelian' => $id_pembelian,
-                'id_kry'  => $id_karyawan,
-                'komisi' => $komisi,
-                'tgl' => date('Y-m-d'),
-                'id_lokasi' => '1'
-            ];
-            DB::table('komisi')->insert($data_komisi);
-        }
+        // if ($hrg_majo > 0) {
+        //     $subharga = $qty_majo * $hrg_majo;
+        // } else {
+        //     $subharga = 0;
+        // }
+        // $komisi1 = $subharga * $d_produk->komisi / 100;
+        // $komisi = $komisi1 / count($nota);
+        // foreach ($nota as $id_karyawan) {
+        //     $data_komisi = [
+        //         'id_pembelian' => $id_pembelian,
+        //         'id_kry'  => $id_karyawan,
+        //         'komisi' => $komisi,
+        //         'tgl' => date('Y-m-d'),
+        //         'id_lokasi' => '1'
+        //     ];
+        //     DB::table('komisi')->insert($data_komisi);
+        // }
     }
 
     public function load_waitress_selesai(Request $r)
@@ -952,7 +942,8 @@ class MejaController extends Controller
         $data = [
             'menu2' => $menu2,
             'majo_hide' => $majo_hide,
-            'waitress' => $waitress
+            'waitress' => $waitress,
+            'meja' => DB::table('tb_meja')->where('id_meja', $r->id_meja)->first()->nm_meja
         ];
 
         return view('meja.load_waitress_selesai', $data);
