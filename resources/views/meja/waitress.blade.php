@@ -6,9 +6,6 @@
             <th>Request</th>
             <th>Qty</th>
             <th>Status</th>
-
-            {{-- <th>Masak / Antar </th> --}}
-            <th>Jam Order </th>
         </tr>
     </thead>
     <tbody>
@@ -25,15 +22,19 @@
                     <?= $m->nm_meja ?>
                 </td>
                 <td class="bg-info" style="vertical-align: middle;">
-                    <a class="muncul muncul{{ $m->id_meja }}  btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
-                        no_order="{{ $m->no_order }}">View</a>
-                    <a class="hilang hilang{{ $m->id_meja }}  btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
-                        style="display:none">View</a>
+
+                    <a class="muncul muncul{{ $m->id_meja }}   btn btn-primary btn-sm" data-toggle="modal"
+                        id_meja="{{ $m->id_meja }}" no_order="{{ $m->no_order }}" href="#view_menu">View</a>
+
+                    {{-- <a class="hilang hilang{{ $m->id_meja }}  btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
+                        style="display:none">View</a> --}}
+
+
                     <div class="dropdown d-inline-block mb-2">
-                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                        <a class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-plus"></i> Pesanan
-                        </button>
+                        </a>
                         <div class="dropdown-menu" aria-labelledby="invoice">
                             <a data-toggle="modal" class="btn_tbh dropdown-item" no_order="<?= $m->no_order ?>"
                                 href="#tbh_menu">Resto</a>
@@ -42,81 +43,78 @@
                         </div>
                     </div>
                     <a target="_blank" href="{{ route('billing', ['no' => $m->no_order]) }}"
-                        class="btn btn-success btn-sm mb-2"><i class="fas fa-print"></i> Bill</a>
-                    <?php if ($m->prn == 'T') : ?>
-                    <a href="{{ route('checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm mb-2"><i
-                            class="fas fa-print"></i> Checker</a>
-                    <?php else : ?>
-                    <a href="{{ route('copy_checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm mb-2"><i
-                            class="fas fa-print"></i> Copy Checker</a>
-                    <?php endif ?>
-                    <?php if ($m->t_prn == 'T') : ?>
-                    <a href="{{ route('checker_tamu', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm mb-2"><i
-                            class="fas fa-print"></i> Checker tamu</a>
-                    <?php else : ?>
-                    <a href="{{ route('copy_checker_tamu', ['no' => $m->no_order]) }}"
-                        class="btn btn-success btn-sm mb-2"><i class="fas fa-print"></i> Copy Checker tamu</a>
-                    <?php endif ?>
-                    <a href="{{ route('all_checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm mb-2"><i
+                        class="btn btn-success btn-sm "><i class="fas fa-print"></i> Bill</a>
+
+                    @if ($m->prn == 'T')
+                        <a href="{{ route('checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm "><i
+                                class="fas fa-print"></i> Checker</a>
+                    @else
+                        <a href="{{ route('copy_checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm "><i
+                                class="fas fa-print"></i> Copy Checker</a>
+                    @endif
+
+                    @if ($m->t_prn == 'T')
+                        <a href="{{ route('checker_tamu', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm "><i
+                                class="fas fa-print"></i> Checker tamu</a>
+                    @else
+                        <a href="{{ route('copy_checker_tamu', ['no' => $m->no_order]) }}"
+                            class="btn btn-success btn-sm "><i class="fas fa-print"></i> Copy Checker tamu</a>
+                    @endif
+
+
+                    <a href="{{ route('all_checker', ['no' => $m->no_order]) }}" class="btn btn-success btn-sm "><i
                             class="fas fa-print"></i> Print all</a>
 
-                    <?php if (($m->qty1 -  $m->qty2) != '0') : ?>
-                    <?php if ($m->selesai != 'selesai') : ?>
-                    <?php else : ?>
-                    <?php $l = 1;
-                foreach ($order as $a) : ?>
-                    <div class="dropdown d-inline-block mb-2">
-                        <button class="btn btn-success btn-sm dropdown-toggle" type="button"
-                            id="invoice{{ $a->no_order2 }}" data-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="fas fa-file-invoice"></i> invoice {{ $l++ }}
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="invoice{{ $a->no_order2 }}">
+                    @if ($m->qty1 - $m->qty2 != '0')
+                        @if ($m->selesai != 'selesai')
+                        @else
+                            @foreach ($order as $l => $a)
+                                <div class="dropdown d-inline-block ">
+                                    <button class="btn btn-success btn-sm dropdown-toggle" type="button"
+                                        id="invoice{{ $a->no_order2 }}" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class="fas fa-file-invoice"></i> invoice {{ $l + 1 }}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="invoice{{ $a->no_order2 }}">
 
-                            <a target="_blank" class="dropdown-item"
-                                href="{{ route('print_nota', ['no' => $a->no_order2]) }}">Print</a>
-                            <a data-toggle="modal" href="#edit_pembayaran" no_order="{{ $a->no_order2 }}  "
-                                class="dropdown-item btn_edit_pembayaran">Edit</a>
+                                        <a target="_blank" class="dropdown-item"
+                                            href="{{ route('print_nota', ['no' => $a->no_order2]) }}">Print</a>
+                                        <a data-toggle="modal" href="#edit_pembayaran" no_order="{{ $a->no_order2 }}  "
+                                            class="dropdown-item btn_edit_pembayaran">Edit</a>
+                                    </div>
+                                </div>
+                            @endforeach
+                            <a href="javascript:void(0)" class="btn btn-success btn-sm btn_pembayaran "
+                                no_order="{{ $m->no_order }}"><i class="fas fa-funnel-dollar"></i> Pembayaran</a>
+                        @endif
+                    @else
+                        <?php $i = 1;foreach ($order as $a) : ?>
+
+                        <div class="dropdown d-inline-block ">
+                            <button class="btn btn-success btn-sm dropdown-toggle" type="button"
+                                id="invoice{{ $a->no_order2 }}" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                <i class="fas fa-file-invoice"></i> invoice {{ $i++ }}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="invoice{{ $a->no_order2 }}">
+                                <a target="_blank" class="dropdown-item"
+                                    href="{{ route('print_nota', ['no' => $a->no_order2]) }}">Print</a>
+                                <a data-toggle="modal" href="#edit_pembayaran" no_order="{{ $a->no_order2 }}"
+                                    class="dropdown-item btn_edit_pembayaran">Edit</a>
+                            </div>
                         </div>
-                    </div>
-                    <?php endforeach ?>
-                    <a href="javascript:void(0)" class="btn btn-success btn-sm btn_pembayaran mb-2"
-                        no_order="{{ $m->no_order }}"><i class="fas fa-funnel-dollar"></i> Pembayaran</a>
+                        <?php endforeach ?>
+                        <a class="btn btn-success btn-sm clear" kode="{{ $m->no_order }}"><i
+                                class="fas fa-hand-sparkles"></i>
+                            Clear up</a>
+                    @endif
 
-                    <?php endif ?>
-
-                    <?php else : ?>
-
-                    <?php $i = 1;
-                foreach ($order as $a) : ?>
-
-                    <div class="dropdown d-inline-block mb-2">
-                        <button class="btn btn-success btn-sm dropdown-toggle" type="button"
-                            id="invoice{{ $a->no_order2 }}" data-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="fas fa-file-invoice"></i> invoice {{ $i++ }}
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="invoice{{ $a->no_order2 }}">
-                            <a target="_blank" class="dropdown-item"
-                                href="{{ route('print_nota', ['no' => $a->no_order2]) }}">Print</a>
-                            <a data-toggle="modal" href="#edit_pembayaran" no_order="{{ $a->no_order2 }}"
-                                class="dropdown-item btn_edit_pembayaran">Edit</a>
-                        </div>
-                    </div>
-                    <?php endforeach ?>
-                    <a class="btn btn-success btn-sm clear" kode="{{ $m->no_order }}"><i
-                            class="fas fa-hand-sparkles"></i>
-                        Clear up</a>
-                    <?php endif ?>
                 </td>
                 <td class="bg-info"></td>
                 <td class="bg-info"></td>
                 <td class="bg-info"></td>
 
-                {{-- disini --}}
-                <td colspan="50" class="bg-info">
-                    <?= number_format($m->total_jam_pesan, 0) ?> Menit
-                </td>
+
             </tr>
             @php
                 $menu = DB::table('menu1')
@@ -131,65 +129,37 @@
                         GROUP BY a.id_pembelian");
 
             @endphp
-            <tr>
+            {{-- <tr>
     <tbody class="load_menu_s{{ $m->id_meja }}"></tbody>
-    </tr>
-    @foreach ($menu as $m)
-        @if ($m->nm_menu != '')
-            <tr class="header">
-                <td></td>
-                <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_menu }}</td>
-                <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->request }}</td>
-                <td> {{ $m->qty }}</td>
-                <td>
-                    {{ $m->selesai }}
-                </td>
-                <td>{{ date('H:i', strtotime($m->created_at)) }} </td>
-            </tr>
-        @else
-        @endif
-    @endforeach
-    <?php foreach ($majo as $m) :
-                if ($m->nm_produk == '') {
-                continue;
-                } else {
+    </tr> --}}
+            @foreach ($menu as $m)
+                @if ($m->nm_menu != '')
+                    <tr class="header">
+                        <td></td>
+                        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_menu }}</td>
+                        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->request }}</td>
+                        <td> {{ $m->qty }}</td>
+                        <td>
+                            {{ $m->selesai }}
+                        </td>
+                    </tr>
+                @else
+                @endif
+            @endforeach
 
-                }
-            ?>
-
-    <tr class="header">
-        <td></td>
-        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_produk }}</td>
-        <td></td>
-        <td> {{ $m->jumlah }}</td>
-        <?php if (!empty($m->pengantar)) : ?>
-        <td><a kode="{{ $m->id_pembelian }}" class="btn btn-info btn-sm selesai_majo"><i
-                    class="fas fa-thumbs-up"></i></a>
-        </td>
-        <?php else : ?>
-        <td><a kode="{{ $m->id_pembelian }}" class="btn btn-info btn-sm gagal"><i class="fas fa-thumbs-up"></i></a>
-        </td>
-        <?php endif ?>
-        <?php foreach ($waitress as $k) : ?>
-        <?php if (!empty($m->pengantar)) : ?>
-        <?php if ($m->pengantar == $k->nama) : ?>
-        <td><a kode="{{ $m->id_pembelian }}" class="btn btn-warning btn-sm un_waitress_majo"><i
-                    class="fas fa-user-check"></i></a></td>
-        <?php else : ?>
-        <td></td>
-        <?php endif ?>
-
-        <?php else : ?>
-        <td><a kode="{{ $m->id_pembelian }}" kry="{{ $k->nama }}"
-                class="btn btn-sm btn-success waitress_majo"><i class="fas fa-check"></i></a></td>
-        <?php endif ?>
-        <?php endforeach ?>
-        <td></td>
-        <td>{{ date('H:i', strtotime($m->tgl_input)) }}</td>
-    </tr>
-
-    <?php endforeach ?>
-    @endforeach
+            @foreach ($majo as $m)
+                @if ($m->nm_produk == '')
+                @else
+                    <tr class="header">
+                        <td></td>
+                        <td style="white-space:nowrap;text-transform: lowercase;">{{ $m->nm_produk }}</td>
+                        <td></td>
+                        <td> {{ $m->jumlah }}</td>
+                        <td>{{ $m->selesai == 'diantar' ? 'dimasak' : 'selesai' }}</td>
+                    </tr>
+                @endif
+            @endforeach
+        @endforeach
 
     </tbody>
 </table>

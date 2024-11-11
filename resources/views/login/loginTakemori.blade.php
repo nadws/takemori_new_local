@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ $title }}</title>
     <link rel="stylesheet" href="{{ asset('public/assets') }}/css1/materialdesignicons.min.css">
-    
+
     <link rel="stylesheet" href="{{ asset('public/assets') }}/css1/login.css">
 </head>
 
@@ -17,7 +17,8 @@
             <div class="card login-card">
                 <div class="row no-gutters">
                     <div class="col-md-5">
-                        <img src="{{ asset('public/assets') }}/tb_menu/KAKIAGE.jpg" alt="login" class="login-card-img">
+                        <img src="{{ asset('public/assets') }}/tb_menu/KAKIAGE.jpg" alt="login"
+                            class="login-card-img">
                     </div>
                     <div class="col-md-7">
                         <div class="card-body">
@@ -54,7 +55,7 @@
             </div>
         </div>
     </main>
-    
+
 </body>
 
 </html>

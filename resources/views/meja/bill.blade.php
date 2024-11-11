@@ -9,10 +9,10 @@
 <div style="font-size: 14px;" class="invoice">
     <center>
         <?php if (Session::get('id_lokasi') == 1) { ?>
-        <img width="100" src="{{ asset('public/assets') }}/pages/login/img/Takemori_new.jpg" alt="">
+        <img width="100" src="{{ asset('assets') }}/pages/login/img/Takemori_new.jpg" alt="">
         <h3 align="center" style="margin-top: -1px;">TAKEMORI</h3>
         <?php } else { ?>
-        <img width="100" src="{{ asset('public/assets') }}/pages/login/img/soondobu.jpg" alt="">
+        <img width="100" src="{{ asset('assets') }}/pages/login/img/soondobu.jpg" alt="">
         <h3 align="center" style="margin-top: -1px;">SOONDOBU</h3>
         <?php } ?>
 
@@ -34,7 +34,7 @@
             </td>
 
             <td>
-                {{$pesan_2->nm_meja }}
+                {{ $pesan_2->nm_meja }}
             </td>
 
         </tr>
@@ -44,7 +44,7 @@
             <tr>
                 <td colspan="3">
                     <b>#
-                        {{substr($no_order, 5)}}
+                        {{ substr($no_order, 5) }}
                     </b>
                 </td>
             </tr>
@@ -55,12 +55,12 @@
                 <td style="white-space: nowrap;text-align: center;" width="20%">
                     <?php
                     $Weddingdate = new DateTime($pesan_2->j_mulai);
-                    echo $Weddingdate->format("M j, h:i:s a");
+                    echo $Weddingdate->format('M j, h:i:s a');
                     ?>
                     <br>
                 </td>
                 <td>
-                    {{$pesan_2->nm_meja }}
+                    {{ $pesan_2->nm_meja }}
                 </td>
             </tr>
         </tbody>
@@ -75,66 +75,63 @@
                 $dis = $d->id_distribusi
             ?>
             @if ($d->nm_menu == '')
-
             @else
-            <tr>
-                <td style="text-align: left;" width="6%">
-                    <?= $d->qty ?>
-                </td>
-                <td style="font-size: 20px;">
-                    <?= ucwords(strtolower($d->nm_menu)) ?>
-                </td>
-                <td width="23%" style="font-size: 20px;">
-                    <?= number_format($d->harga * $d->qty) ?>
-                </td>
-            </tr>
+                <tr>
+                    <td style="text-align: left;" width="6%">
+                        <?= $d->qty ?>
+                    </td>
+                    <td style="font-size: 20px;">
+                        <?= ucwords(strtolower($d->nm_menu)) ?>
+                    </td>
+                    <td width="23%" style="font-size: 20px;">
+                        <?= number_format($d->harga * $d->qty) ?>
+                    </td>
+                </tr>
             @endif
 
-            <?php $ongkir = $d->ongkir ?>
+            <?php $ongkir = $d->ongkir; ?>
             <?php endforeach ?>
 
             @php
-            $t_majo = 0;
+                $t_majo = 0;
             @endphp
             @foreach ($majo as $m)
-            @php
-            $t_majo += $m->harga * $m->jumlah;
-            @endphp
-            <tr>
-                <td style="text-align: left;" width="6%">
-                    <?= $m->jumlah ?>
-                </td>
-                <td style="font-size: 20px;">
-                    <?= ucwords(strtolower($m->nm_produk)) ?>
-                </td>
-                <td width="23%" style="font-size: 20px;">
-                    <?= number_format($m->harga * $m->jumlah) ?>
-                </td>
-            </tr>
+                @php
+                    $t_majo += $m->harga * $m->jumlah;
+                @endphp
+                <tr>
+                    <td style="text-align: left;" width="6%">
+                        <?= $m->jumlah ?>
+                    </td>
+                    <td style="font-size: 20px;">
+                        <?= ucwords(strtolower($m->nm_produk)) ?>
+                    </td>
+                    <td width="23%" style="font-size: 20px;">
+                        <?= number_format($m->harga * $m->jumlah) ?>
+                    </td>
+                </tr>
             @endforeach
 
         </tbody>
         @php
-        $tb_dis = DB::table('tb_distribusi')
-        ->where('id_distribusi', $dis)
-        ->first();
+            $tb_dis = DB::table('tb_distribusi')->where('id_distribusi', $dis)->first();
         @endphp
         <?php if ($tb_dis->ongkir == 'Y') : ?>
 
         <?php if ($bayar < $batas->rupiah) : ?>
-        <?php $ongkir = $ongkir2->rupiah ?>
+        <?php $ongkir = $ongkir2->rupiah; ?>
         <?php else : ?>
-        <?php $ongkir = 0 ?>
+        <?php $ongkir = 0; ?>
         <?php endif ?>
         <?php else : ?>
-        <?php $ongkir = 0 ?>
+        <?php $ongkir = 0; ?>
         <?php endif ?>
 
         <?php if ($tb_dis->service == 'Y') : ?>
-        <?php $service = $bayar * 0.07;  ?>
+        <?php $service = $bayar * 0.07; ?>
 
         <?php else : ?>
-        <?php $service = 0  ?>
+        <?php $service = 0; ?>
         <?php endif ?>
 
         <?php if ($tb_dis->tax == 'Y') {
@@ -154,7 +151,7 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td style="font-weight: bold; font-size: 20px; ">SUBTOTAL</td>
                 <td style="font-weight: bold; font-size: 20px;">
-                    {{number_format($bayar + $t_majo )}}
+                    {{ number_format($bayar + $t_majo) }}
                 </td>
             </tr>
             <?php if ($tb_dis->ongkir == 'Y') : ?>
@@ -162,7 +159,7 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td style="font-weight: bold; font-size: 20px; ">ONGKIR</td>
                 <td style="font-weight: bold; font-size: 20px; ">
-                    {{number_format($ongkir, 0) }}
+                    {{ number_format($ongkir, 0) }}
                 </td>
             </tr>
             <?php else : ?>
@@ -173,7 +170,7 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td style=" font-size: 20px; ">Service Charge</td>
                 <td style=" font-size: 20px; ">
-                    {{number_format($service)}}
+                    {{ number_format($service) }}
                 </td>
             </tr>
             <?php else : ?>
@@ -184,7 +181,7 @@
                 <td> </td>
                 <td style=" font-size: 20px; ">Tax</td>
                 <td style=" font-size: 20px; ">
-                    {{number_format($tax )}}
+                    {{ number_format($tax) }}
                 </td>
             </tr>
             <?php else : ?>
@@ -195,7 +192,7 @@
                 <?php
                 $a = round($total);
                 $b = number_format(substr($a, -3), 0);
-
+                
                 if ($b == '000') {
                     $c = $a;
                     $round = '000';
@@ -207,62 +204,61 @@
                 <td style="text-align: left;" width="6%"></td>
                 <td>TOTAL</td>
                 <td>
-                    {{number_format($c , 0)}}
+                    {{ number_format($c, 0) }}
                 </td>
             </tr>
             @if (empty($disc->jenis))
-                
             @else
-            <tr>
-                <td style="text-align: left;" width="6%"></td>
-                <td>Discount</td>
-                <td>
-                    @if ($c < $disc->minimum_rp)
-                        0
-                    @else
-                    ({{ $disc->jenis == 'Persen' ? $disc->disc . '%' : 'Rp.' . $disc->disc }})
-                    @endif
-                    
+                <tr>
+                    <td style="text-align: left;" width="6%"></td>
+                    <td>Discount</td>
+                    <td>
+                        @if ($c < $disc->minimum_rp)
+                            0
+                        @else
+                            ({{ $disc->jenis == 'Persen' ? $disc->disc . '%' : 'Rp.' . $disc->disc }})
+                        @endif
 
-                </td>
-            </tr>
-            <tr style="font-weight: bold; font-size: 20px;">
-                <?php
-                if ($c < $disc->minimum_rp) {
-                    $gran_total = $c;
-                    }else {
+
+                    </td>
+                </tr>
+                <tr style="font-weight: bold; font-size: 20px;">
+                    <?php
+                    if ($c < $disc->minimum_rp) {
+                        $gran_total = $c;
+                    } else {
                         if ($disc->jenis == 'Persen') {
                             $gran_total = $c * ((100 - $disc->disc) / 100);
                         } else {
                             $gran_total = $c * $disc->disc;
                         }
                     }
-
+                    
                     $d = $gran_total;
                     $e = number_format(substr($d, -3), 0);
-
+                    
                     if ($e == '00') {
                         $f = $d;
                         $round = '00';
                     } elseif ($b < 1000) {
                         $f = $d - $e + 1000;
                         $round = 1000 - $e;
-                }
-                ?>
-                <td style="text-align: left;" width="6%"></td>
-                <td>GRAND TOTAL</td>
-                <td>
-                    {{number_format($f , 0)}}
-                </td>
-            </tr>
+                    }
+                    ?>
+                    <td style="text-align: left;" width="6%"></td>
+                    <td>GRAND TOTAL</td>
+                    <td>
+                        {{ number_format($f, 0) }}
+                    </td>
+                </tr>
             @endif
-            
-            
+
+
         </tfoot>
     </table>
 
     <hr>
-    <input type="hidden" id="kode" value="{{$no_order }}">
+    <input type="hidden" id="kode" value="{{ $no_order }}">
     <?php $Weddingdate = new DateTime($pesan_2->j_mulai); ?>
     <p align="center">
         <?= $Weddingdate->format('h:i a') ?><br>
