@@ -196,7 +196,7 @@
 </div>
 
 
-<script src="{{ asset('public/assets') }}/plugins/jquery/jquery.min.js"></script>
+<script src="{{ config('assets') }}/plugins/jquery/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
         $(document).on('submit', '#form_save_percobaan', function(event) {
