@@ -3,6 +3,8 @@
         <div class="container text-center">
             <ul class="mainnav">
                 @php
+                    $assets = asset(config('assets'));
+
                     $navbar = DB::table('tb_navbar')->get();
                     $sub_navbar = DB::table('tb_sub_navbar')->get();
                     $id_user = Auth::user()->id;
@@ -28,13 +30,13 @@
                     <?php if($c->jenis == 'navbar'){ ?>
                     <li>
                         <a href="{{ route($c->rot) }}"><img
-                                src="{{ asset('public/assets') }}/img_menu/{{ $c->img }}"><span>{{ $c->sub_navbar }}</span>
+                                src="{{ $assets }}/img_menu/{{ $c->img }}"><span>{{ $c->sub_navbar }}</span>
                         </a>
                     </li>
                     <?php } ?>
                 @endforeach
                 <li class="dropdown"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"> <img
-                            src="{{ asset('public/assets') }}/img_menu/server.png"><span>Database</span> <b
+                            src="{{ $assets }}/img_menu/server.png"><span>Database</span> <b
                             class="caret"></b></a>
                     <ul class="dropdown-menu">
                         @php
@@ -61,12 +63,12 @@
                     <?php if($c->jenis == 'navbar'){ ?>
                     <li>
                         <a href="{{ route($c->rot) }}"><img
-                                src="{{ asset('public/assets') }}/img_menu/{{ $c->img }}"><span>{{ $c->sub_navbar }}</span>
+                                src="{{ $assets }}/img_menu/{{ $c->img }}"><span>{{ $c->sub_navbar }}</span>
                         </a>
                     </li>
                     <?php if($c->rot == 'laporan'){ ?>
                     <li class="dropdown"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="{{ asset('public/assets') }}/img_menu/order2.png"><span>Orderan</span> <b
+                            <img src="{{ $assets }}/img_menu/order2.png"><span>Orderan</span> <b
                                 class="caret"></b></a>
                         <ul class="dropdown-menu">
                             @php
@@ -85,7 +87,7 @@
                     <?php } ?>
                 @endforeach
                 <li class="dropdown"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{ asset('public/assets') }}/img_menu/notebook.png"><span>Catatan</span> <b
+                        <img src="{{ $assets }}/img_menu/notebook.png"><span>Catatan</span> <b
                             class="caret"></b></a>
                     <ul class="dropdown-menu">
                         @php
@@ -109,7 +111,7 @@
 
 
                 <li class="dropdown"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"> <img
-                            src="{{ asset('public/assets') }}/img_menu/warning.png"><span>Peringatan</span>
+                            src="{{ $assets }}/img_menu/warning.png"><span>Peringatan</span>
                         <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         @php
@@ -125,7 +127,7 @@
                     </ul>
                 </li>
                 <li class="dropdown"><a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"> <img
-                            src="{{ asset('public/assets') }}/img_menu/export.png"><span>Server</span>
+                            src="{{ $assets }}/img_menu/export.png"><span>Server</span>
                         <b class="caret"></b></a>
                     <ul class="dropdown-menu">
 

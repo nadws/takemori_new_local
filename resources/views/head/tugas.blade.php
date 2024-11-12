@@ -1,4 +1,4 @@
-<table class="table" width="100%">
+a<table class="table" width="100%">
     <thead>
         <tr class="header">
             <th class="sticky-top th-atas">Meja</th>
@@ -17,8 +17,8 @@
                     {{ $m->nm_meja }}
                 </td>
                 <td class="bg-info" style="vertical-align: middle;">
-                    <a class="muncul muncul{{ $m->id_meja }} btn btn-primary btn-sm"
-                        id_meja="{{ $m->id_meja }}" no_order="{{ $m->no_order }}">View</a>
+                    <a class="muncul muncul{{ $m->id_meja }} btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
+                        no_order="{{ $m->no_order }}">View</a>
                     <a class="hilang hilang{{ $m->id_meja }} btn btn-primary btn-sm" id_meja="{{ $m->id_meja }}"
                         style="display:none">View</a>
                 </td>
@@ -30,61 +30,61 @@
             </tr>
 
             @php
-                $menu = DB::select("SELECT b.nm_menu, c.nm_meja, c.id_meja,a.request,a.qty,a.selesai,a.id_order,a.j_mulai,f.ttlMenuSemua FROM tb_order AS a LEFT JOIN view_menu AS b ON b.id_harga = a.id_harga
+                $menus = DB::select("SELECT b.nm_menu, c.nm_meja, c.id_meja,a.request,a.qty,a.selesai,a.id_order,a.j_mulai,f.ttlMenuSemua FROM tb_order AS a LEFT JOIN view_menu AS b ON b.id_harga = a.id_harga
                     LEFT JOIN (SELECT d.id_harga, COUNT(id_harga) as ttlMenuSemua FROM `tb_order` as d where d.id_lokasi = '$lokasi' and d.selesai = 'dimasak' and aktif = '1' and void = 0 GROUP BY d.id_harga) as f on b.id_harga = f.id_harga
                     LEFT JOIN tb_meja AS c ON c.id_meja = a.id_meja where a.id_lokasi = '$lokasi' and a.id_meja = '$m->id_meja' and a.selesai = 'dimasak' and aktif = '1' and void = 0 ORDER BY a.id_order");
 
-                $majo = DB::select("SELECT a.*, c.nm_produk
+                $majos = DB::select("SELECT a.jumlah, a.id_pembelian, c.nm_produk
                         FROM tb_pembelian AS a
                         LEFT JOIN tb_produk AS c ON c.id_produk = a.id_produk
                         WHERE a.no_nota = '$m->no_order' AND a.lokasi = '$lokasi' and a.selesai = 'diantar'
                         GROUP BY a.id_pembelian");
             @endphp
-           
             <tr class="header">
-    <tbody class="load_menu_s{{ $m->id_meja }}"></tbody>
-    </tr>
+                <tbody class="load_menu_s{{ $m->id_meja }}"></tbody>
+            </tr>
 
-    <tr class="header">
-        <tbody class="addmeja{{ $m->id_meja }}"></tbody>
-    </tr>
-    @foreach ($menu as $m)
-        @if ($m->nm_menu != '')
-            <tr class="header meja{{ $m->id_meja }}">
+            <tr class="header">
+                <tbody class="addmeja{{ $m->id_meja }}"></tbody>
+            </tr>
+    @foreach ($menus as $menu)
+        @if ($menu->nm_menu != '')
+            <tr class="header meja{{ $menu->id_meja }}">
                 <td></td>
                 <td style="white-space:nowrap;text-transform: lowercase;">
-                    {{ $m->nm_menu }} <span class="text-danger">({{ $m->ttlMenuSemua }})</span>
+                    {{ $menu->nm_menu }} <span class="text-danger">({{ $menu->ttlMenuSemua }})</span>
                 </td>
                 <td>
-                    {{ $m->request }}
+                    {{ $menu->request }}
                 </td>
                 <td>
-                    {{ $m->qty }}
+                    {{ $menu->qty }}
                 </td>
-                @if ($m->selesai == 'dimasak')
+                @if ($menu->selesai == 'dimasak')
                     <td>
-                        <a kode="{{ $m->id_order }}" class="btn btn-info btn-sm selesai"
-                            id_meja="{{ $m->id_meja }}"><i class="fas fa-thumbs-up"></i></a>
+                        <a kode="{{ $menu->id_order }}" class="btn btn-info btn-sm selesai"
+                            id_meja="{{ $menu->id_meja }}"><i class="fas fa-thumbs-up"></i></a>
                     </td>
 
                     <td style="font-weight: bold;">
-                        {{ date('H:i', strtotime($m->j_mulai)) }}
+                        {{ date('H:i', strtotime($menu->j_mulai)) }}
                     </td>
                 @else
-                    <td style="text-decoration: line-through;"><a href="{{ url('orderan/order', $m->no_order) }}"
+                    <td style="text-decoration: line-through;"><a href="{{ url('orderan/order', $menu->no_order) }}"
                             style="color:black;">SELESAI</a></td>
-                
-                    <td><b style="color: {{ date('H:i', strtotime($m->j_selesai)) < date('H:i', strtotime($m->j_mulai . '+' . $setMenit->menit . 'minutes')) ? 'blue' : 'red' }};">
-                            {{ date('H:i', strtotime($m->j_selesai)) }}
+
+                    <td><b
+                            style="color: {{ date('H:i', strtotime($menu->j_selesai)) < date('H:i', strtotime($menu->j_mulai . '+' . $setMenit->menit . 'minutes')) ? 'blue' : 'red' }};">
+                            {{ date('H:i', strtotime($menu->j_selesai)) }}
                         </b></td>
                 @endif
             </tr>
         @endif
     @endforeach
-    @foreach ($majo as $j)
+    @foreach ($majos as $j)
         @if ($j->nm_produk != '')
             <tr class="header meja">
-               <td></td>
+                <td></td>
                 <td>
                     {{ $j->nm_produk }}
                 </td>
@@ -93,8 +93,8 @@
                     {{ $j->jumlah }}
                 </td>
                 <td>
-                    <a kode="{{ $j->id_pembelian }}" no_order="{{$m->no_order}}" class="btn btn-info btn-sm selesai_majo"><i
-                        class="fas fa-thumbs-up"></i></a>
+                    <a kode="{{ $j->id_pembelian }}" no_order="{{ $m->no_order }}"
+                        class="btn btn-info btn-sm selesai_majo"><i class="fas fa-thumbs-up"></i></a>
                 </td>
             </tr>
         @endif

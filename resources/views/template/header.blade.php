@@ -15,8 +15,10 @@
                         $gambar = 'user copy.png';
                         $h5 = 'ADMINISTRATOR';
                     }
+
+                    $assets = asset(config('assets'));
                 @endphp
-                <img src="{{ asset('public/assets') }}/pages/login/img/{{ $gambar }}" alt="AdminLTE Logo"
+                <img src="{{ $assets }}/pages/login/img/{{ $gambar }}" alt="AdminLTE Logo"
                     class="brand-image img-circle elevation-3" style="opacity: .8"> &nbsp;
                 <h5 style="font-weight: bold; color:white">{{ $h5 }}</h5>
                 <button class="order-1 navbar-toggler first-button" type="button" data-toggle="collapse"

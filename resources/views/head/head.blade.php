@@ -1,6 +1,101 @@
 @extends('template.master')
 @section('content')
-    <link rel="stylesheet" href="{{ asset('views/head/head.css') }}">
+    <style>
+        h6 {
+            color: #155592;
+            font-weight: bold;
+        }
+
+        .nav-pills .nav-link.active {
+            color: #fff;
+            background-color: #00A549;
+            box-shadow: 0px 10px 20px 0px rgba(50, 50, 50, 0.52)
+        }
+
+        .nav {
+            white-space: nowrap;
+            display: block !important;
+            flex-wrap: nowrap;
+            max-width: 100%;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .nav li {
+            display: inline-block
+        }
+
+        input[type=number] {
+            /*for absolutely positioning spinners*/
+            position: relative;
+            padding: 5px;
+            padding-right: 25px;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: inner-spin-button !important;
+            width: 25px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+        }
+
+        .custom-scrollbar-js,
+        .custom-scrollbar-css {
+            height: 75px;
+        }
+
+
+        /* Custom Scrollbar using CSS */
+        .custom-scrollbar-css {
+            overflow-y: scroll;
+        }
+
+        /* scrollbar width */
+        .custom-scrollbar-css::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        /* scrollbar track */
+        .custom-scrollbar-css::-webkit-scrollbar-track {
+            background: #EEE;
+        }
+
+        /* scrollbar handle */
+        .custom-scrollbar-css::-webkit-scrollbar-thumb {
+            border-radius: 1rem;
+            background: #26C784;
+            background: -webkit-linear-gradient(to right, #11998e, #26C784);
+            background: linear-gradient(to right, #11998e, #26C784);
+        }
+
+        .badge-notif {
+            position: relative;
+        }
+
+        .badge-notif[data-badge]:after {
+            content: attr(data-badge);
+            position: absolute;
+            top: 3px;
+            right: -2px;
+            font-size: .7em;
+            background: #e53935;
+            color: white;
+            width: 18px;
+            height: 18px;
+            text-align: center;
+            line-height: 18px;
+            border-radius: 50%;
+        }
+    </style>
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <div class="content-header">
@@ -82,6 +177,28 @@
 @section('script')
     <script>
         $(document).ready(function() {
+
+            load_tugas();
+            load_distribusi();
+
+
+            function load_tugas() {
+                var id_distribusi = $("#id_distribusi").val();
+                // var jumlah1 = $("#jumlah").val();
+                // var jumlah2 = $("#jumlah1").val();
+                $.ajax({
+                    method: "GET",
+                    url: "{{ route('get_head') }}?id=" + id_distribusi,
+                    dataType: "html",
+                    beforeSend: function() {
+                        $('#tugas_head').html('loading...');
+                    },
+                    success: function(hasil) {
+                        $('#tugas_head').html(hasil);
+                    }
+                });
+
+            }
             $(document).on('click', '.selesai_majo', function(event) {
                 var kode = $(this).attr('kode');
                 var no_order = $(this).attr('no_order');
@@ -105,24 +222,6 @@
                     }
                 });
             });
-            load_tugas();
-
-
-            function load_tugas() {
-                var id_distribusi = $("#id_distribusi").val();
-                // var jumlah1 = $("#jumlah").val();
-                // var jumlah2 = $("#jumlah1").val();
-                $.ajax({
-                    method: "GET",
-                    url: "{{ route('get_head') }}?id=" + id_distribusi,
-                    dataType: "html",
-                    success: function(hasil) {
-                        $('#tugas_head').html(hasil);
-                    }
-                });
-
-            }
-            
             $(document).on('click', '.selesai', function(event) {
                 var kode = $(this).attr('kode');
                 var s = $("#searchHead").val();
@@ -131,6 +230,7 @@
                 $.ajax({
                     type: "GET",
                     url: "<?= route('head_selesei') ?>?kode=" + kode,
+
                     success: function(response) {
                         Swal.fire({
                             toast: true,
@@ -144,7 +244,7 @@
                         $.ajax({
                             method: "GET",
                             url: "{{ route('head2') }}",
-                            data:{
+                            data: {
                                 id_meja: id_meja
                             },
                             dataType: "html",
@@ -174,10 +274,14 @@
                             icon: 'info',
                             title: 'Cancel orderan'
                         });
+
                         $.ajax({
                             method: "GET",
                             url: "{{ route('head2') }}?id_meja=" + id_meja,
                             dataType: "html",
+                            beforeSend: function() {
+                                $('.addmeja' + id_meja).html('loading...');
+                            },
                             success: function(hasil) {
                                 $('.addmeja' + id_meja).html(hasil);
                                 $('.load_menu_s' + id_meja).html('');
@@ -191,7 +295,7 @@
                 });
             });
 
-            load_distribusi();
+
             function load_distribusi() {
                 var id_distribusi = $("#id_distribusi").val();
                 // var jumlah1 = $("#jumlah").val();

@@ -130,7 +130,6 @@ class HeadController extends Controller
 
         $setMenit = DB::table('tb_menit')->where('id_lokasi', $lokasi)->first();
 
-
         $data = [
             'title' => 'Tugas Head',
             'meja' => $meja,
